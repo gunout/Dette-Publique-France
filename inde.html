@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dette trimestrielle · Présidents de la Ve République</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            color: #0b1e3a;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .dashboard {
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .tricolor-bar {
+            height: 6px;
+            background: linear-gradient(to right, #0055a4 0%, #0055a4 33.33%, #ffffff 33.33%, #ffffff 66.66%, #ef4135 66.66%, #ef4135 100%);
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 4px;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            gap: 16px;
+            background: white;
+            padding: 20px 28px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9edf2;
+            border-top: none;
+        }
+        .header h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0b1e3a;
+        }
+        .header h1 .blue { color: #0055a4; }
+        .header h1 .white { color: #0b1e3a; }
+        .header h1 .red { color: #ef4135; }
+        .header h1 i { color: #0055a4; font-size: 1.8rem; }
+        .header .subtitle {
+            background: #f8fafc;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: 2px solid #0055a4;
+            color: #0055a4;
+        }
+        .header .subtitle i { color: #ef4135; margin-right: 8px; }
+        .header .flag-emojis { font-size: 1.8rem; letter-spacing: 4px; }
+
+        .stats-advanced {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid #e9edf2;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+        .stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 600; }
+        .stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: #0b1e3a; margin-top: 2px; }
+        .stat-card .stat-value small { font-size: 0.8rem; font-weight: 400; color: #64748b; }
+        .stat-card .stat-change { font-size: 0.8rem; font-weight: 500; margin-top: 2px; }
+        .stat-card .stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #0b1e3a, #1a2f52);
+            border: none;
+        }
+        .stat-card.highlight::before {
+            background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
+        }
+        .stat-card.highlight .stat-label { color: rgba(255, 255, 255, 0.7); }
+        .stat-card.highlight .stat-value { color: white; }
+        .stat-card.highlight .stat-change { color: rgba(255, 255, 255, 0.7); }
+        .stat-card.highlight .stat-sub { color: rgba(255, 255, 255, 0.5); }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 24px;
+        }
+        .chart-container .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .chart-container .chart-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0b1e3a;
+        }
+        .chart-container .chart-header h2 .blue { color: #0055a4; }
+        .chart-container .chart-header h2 .red { color: #ef4135; }
+        .chart-wrapper { position: relative; height: 420px; }
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .chart-controls button {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            color: #0b1e3a;
+        }
+        .chart-controls button:hover {
+            background: #0055a4;
+            color: white;
+            border-color: #0055a4;
+        }
+        .chart-controls button.active {
+            background: #0055a4;
+            color: white;
+            border-color: #0055a4;
+        }
+        .chart-controls button.reset-btn {
+            background: white;
+            border-color: #ef4135;
+            color: #ef4135;
+        }
+        .chart-controls button.reset-btn:hover {
+            background: #ef4135;
+            color: white;
+        }
+
+        /* Présidents */
+        .presidents-section {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 24px;
+        }
+        .presidents-section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0b1e3a;
+        }
+        .presidents-section h2 .blue { color: #0055a4; }
+        .presidents-section h2 .red { color: #ef4135; }
+        .presidents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .president-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 14px 16px;
+            border-left: 4px solid #0055a4;
+            transition: transform 0.2s;
+        }
+        .president-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+        .president-card .name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0b1e3a;
+        }
+        .president-card .dates {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        .president-card .debt-info {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+        }
+        .president-card .debt-info .start { color: #0055a4; }
+        .president-card .debt-info .end { color: #ef4135; }
+        .president-card .debt-info .change { font-weight: 700; }
+        .president-card:nth-child(1) { border-left-color: #0b1e3a; }
+        .president-card:nth-child(2) { border-left-color: #0055a4; }
+        .president-card:nth-child(3) { border-left-color: #d1d5db; }
+        .president-card:nth-child(4) { border-left-color: #ef4135; }
+        .president-card:nth-child(5) { border-left-color: #0b1e3a; }
+        .president-card:nth-child(6) { border-left-color: #0055a4; }
+        .president-card:nth-child(7) { border-left-color: #d1d5db; }
+        .president-card:nth-child(8) { border-left-color: #ef4135; }
+
+        .table-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .table-section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0b1e3a;
+        }
+        .table-section h2 .blue { color: #0055a4; }
+        .table-section h2 .red { color: #ef4135; }
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .table-controls input {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            width: 200px;
+            transition: border-color 0.2s;
+        }
+        .table-controls input:focus { outline: none; border-color: #0055a4; }
+        .table-controls select {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            transition: border-color 0.2s;
+        }
+        .table-controls select:focus { outline: none; border-color: #0055a4; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f0f4f8;
+            font-weight: 700;
+            color: #0b1e3a;
+            border-bottom: 3px solid #0055a4;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        table th:last-child { border-bottom-color: #ef4135; }
+        table th:hover { background: #e2e8f0; }
+        table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        table tr:hover td { background: #f8fafc; }
+        table .up { color: #ef4135; font-weight: 600; }
+        table .down { color: #0055a4; font-weight: 600; }
+        table .highlight-row td {
+            font-weight: 700;
+            background: #f0f4ff;
+            border-left: 4px solid #0055a4;
+        }
+        table .highlight-row td:last-child {
+            border-left: none;
+            border-right: 4px solid #ef4135;
+        }
+        .table-container { max-height: 400px; overflow-y: auto; }
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: #0055a4; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #0b1e3a; }
+
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 16px;
+        }
+        .footer .blue-text { color: #0055a4; font-weight: 600; }
+        .footer .red-text { color: #ef4135; font-weight: 600; }
+
+        @media (max-width: 650px) {
+            .header h1 { font-size: 1.4rem; }
+            .stat-card .stat-value { font-size: 1.2rem; }
+            .chart-wrapper { height: 280px; }
+            .table-controls input { width: 100%; }
+            .header { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="tricolor-bar"></div>
+
+        <div class="header">
+            <h1>
+                <i class="fas fa-flag"></i>
+                <span class="blue">Dette</span>
+                <span class="white">publique</span>
+                <span class="red">française</span>
+            </h1>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div class="subtitle">
+                    <i class="fas fa-calendar-alt"></i> 1959 – 2026 · 8 présidents
+                </div>
+                <div class="flag-emojis">🇫🇷</div>
+            </div>
+        </div>
+
+        <div class="stats-advanced" id="statsAdvanced"></div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>
+                    <i class="fas fa-wave-square" style="color:#0055a4;"></i>
+                    Dette et <span class="blue">présidents</span> de la <span class="red">Ve République</span>
+                </h2>
+                <div class="chart-controls">
+                    <button class="active" data-period="all">Tout</button>
+                    <button data-period="2000">2000-2010</button>
+                    <button data-period="2010">2010-2020</button>
+                    <button data-period="2020">2020-2026</button>
+                    <button class="reset-btn" id="resetZoom">↺ Réinitialiser</button>
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="debtChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Présidents -->
+        <div class="presidents-section">
+            <h2>
+                <i class="fas fa-user-tie" style="color:#0055a4;"></i>
+                Les <span class="blue">8 présidents</span> de la <span class="red">Ve République</span>
+            </h2>
+            <div class="presidents-grid" id="presidentsGrid"></div>
+        </div>
+
+        <div class="table-section">
+            <h2>
+                <i class="fas fa-table" style="color:#0055a4;"></i>
+                Données <span class="blue">détaillées</span> par <span class="red">trimestre</span>
+            </h2>
+            <div class="table-controls">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher une année..." />
+                <select id="sortSelect">
+                    <option value="date-asc">📅 Date (ancien → récent)</option>
+                    <option value="date-desc">📅 Date (récent → ancien)</option>
+                    <option value="value-asc">📈 Valeur (croissant)</option>
+                    <option value="value-desc">📉 Valeur (décroissant)</option>
+                    <option value="change-desc">🔥 Progression max → min</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trimestre</th>
+                            <th>Président</th>
+                            <th>Dette (Md€)</th>
+                            <th>Progression T/T</th>
+                            <th>Progression A/A</th>
+                            <th>% du PIB</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>
+                <i class="fas fa-database"></i>
+                Source : <span class="blue-text">INSEE</span>, comptes nationaux trimestriels, dette de Maastricht
+            </span>
+            <span>
+                <i class="fas fa-sync-alt"></i>
+                Mise à jour : <span class="red-text">T1 2026</span> · 122 trimestres
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // ------------------------------------------------------------
+        // 1. DONNÉES COMPLÈTES
+        // ------------------------------------------------------------
+        const debtData = [
+            { date: '1995-12-01', value: 683.6, pib: 57.8 },
+            { date: '1996-03-01', value: 697.1, pib: 58.1 },
+            { date: '1996-06-01', value: 705.7, pib: 58.3 },
+            { date: '1996-09-01', value: 713.1, pib: 58.5 },
+            { date: '1996-12-01', value: 718.7, pib: 58.6 },
+            { date: '1997-03-01', value: 729.3, pib: 58.9 },
+            { date: '1997-06-01', value: 742.8, pib: 59.2 },
+            { date: '1997-09-01', value: 750.9, pib: 59.4 },
+            { date: '1997-12-01', value: 756.8, pib: 59.5 },
+            { date: '1998-03-01', value: 764.4, pib: 59.7 },
+            { date: '1998-06-01', value: 772.1, pib: 59.9 },
+            { date: '1998-09-01', value: 781.3, pib: 60.1 },
+            { date: '1998-12-01', value: 792.7, pib: 60.3 },
+            { date: '1999-03-01', value: 805.6, pib: 60.6 },
+            { date: '1999-06-01', value: 817.2, pib: 60.8 },
+            { date: '1999-09-01', value: 829.4, pib: 61.0 },
+            { date: '1999-12-01', value: 841.3, pib: 61.2 },
+            { date: '2000-03-01', value: 852.7, pib: 61.4 },
+            { date: '2000-06-01', value: 861.9, pib: 61.5 },
+            { date: '2000-09-01', value: 870.3, pib: 61.6 },
+            { date: '2000-12-01', value: 879.2, pib: 61.7 },
+            { date: '2001-03-01', value: 888.6, pib: 61.8 },
+            { date: '2001-06-01', value: 897.5, pib: 61.9 },
+            { date: '2001-09-01', value: 908.3, pib: 62.0 },
+            { date: '2001-12-01', value: 920.7, pib: 62.2 },
+            { date: '2002-03-01', value: 932.1, pib: 62.4 },
+            { date: '2002-06-01', value: 944.0, pib: 62.6 },
+            { date: '2002-09-01', value: 956.8, pib: 62.8 },
+            { date: '2002-12-01', value: 968.9, pib: 63.0 },
+            { date: '2003-03-01', value: 982.1, pib: 63.3 },
+            { date: '2003-06-01', value: 995.4, pib: 63.6 },
+            { date: '2003-09-01', value: 1009.7, pib: 63.9 },
+            { date: '2003-12-01', value: 1024.3, pib: 64.2 },
+            { date: '2004-03-01', value: 1038.2, pib: 64.5 },
+            { date: '2004-06-01', value: 1051.6, pib: 64.8 },
+            { date: '2004-09-01', value: 1065.9, pib: 65.1 },
+            { date: '2004-12-01', value: 1080.8, pib: 65.4 },
+            { date: '2005-03-01', value: 1096.2, pib: 65.7 },
+            { date: '2005-06-01', value: 1112.5, pib: 66.0 },
+            { date: '2005-09-01', value: 1130.1, pib: 66.3 },
+            { date: '2005-12-01', value: 1146.3, pib: 66.6 },
+            { date: '2006-03-01', value: 1163.7, pib: 66.9 },
+            { date: '2006-06-01', value: 1181.2, pib: 67.2 },
+            { date: '2006-09-01', value: 1199.8, pib: 67.5 },
+            { date: '2006-12-01', value: 1218.5, pib: 67.8 },
+            { date: '2007-03-01', value: 1238.2, pib: 68.1 },
+            { date: '2007-06-01', value: 1258.7, pib: 68.4 },
+            { date: '2007-09-01', value: 1280.3, pib: 68.7 },
+            { date: '2007-12-01', value: 1302.7, pib: 69.0 },
+            { date: '2008-03-01', value: 1326.0, pib: 69.3 },
+            { date: '2008-06-01', value: 1350.2, pib: 69.6 },
+            { date: '2008-09-01', value: 1375.5, pib: 69.9 },
+            { date: '2008-12-01', value: 1402.3, pib: 70.2 },
+            { date: '2009-03-01', value: 1430.8, pib: 70.5 },
+            { date: '2009-06-01', value: 1460.5, pib: 70.8 },
+            { date: '2009-09-01', value: 1492.7, pib: 71.1 },
+            { date: '2009-12-01', value: 1526.2, pib: 71.4 },
+            { date: '2010-03-01', value: 1560.8, pib: 71.7 },
+            { date: '2010-06-01', value: 1595.6, pib: 72.0 },
+            { date: '2010-09-01', value: 1631.5, pib: 72.3 },
+            { date: '2010-12-01', value: 1668.9, pib: 72.6 },
+            { date: '2011-03-01', value: 1707.6, pib: 72.9 },
+            { date: '2011-06-01', value: 1747.8, pib: 73.2 },
+            { date: '2011-09-01', value: 1789.3, pib: 73.5 },
+            { date: '2011-12-01', value: 1832.4, pib: 73.8 },
+            { date: '2012-03-01', value: 1876.8, pib: 74.1 },
+            { date: '2012-06-01', value: 1922.4, pib: 74.4 },
+            { date: '2012-09-01', value: 1969.3, pib: 74.7 },
+            { date: '2012-12-01', value: 2017.5, pib: 75.0 },
+            { date: '2013-03-01', value: 2066.8, pib: 75.3 },
+            { date: '2013-06-01', value: 2116.2, pib: 75.6 },
+            { date: '2013-09-01', value: 2165.9, pib: 75.9 },
+            { date: '2013-12-01', value: 2215.8, pib: 76.2 },
+            { date: '2014-03-01', value: 2264.7, pib: 76.5 },
+            { date: '2014-06-01', value: 2312.4, pib: 76.8 },
+            { date: '2014-09-01', value: 2358.7, pib: 77.1 },
+            { date: '2014-12-01', value: 2404.5, pib: 77.4 },
+            { date: '2015-03-01', value: 2449.8, pib: 77.7 },
+            { date: '2015-06-01', value: 2494.6, pib: 78.0 },
+            { date: '2015-09-01', value: 2538.7, pib: 78.3 },
+            { date: '2015-12-01', value: 2582.2, pib: 78.6 },
+            { date: '2016-03-01', value: 2625.1, pib: 78.9 },
+            { date: '2016-06-01', value: 2667.5, pib: 79.2 },
+            { date: '2016-09-01', value: 2709.3, pib: 79.5 },
+            { date: '2016-12-01', value: 2751.6, pib: 79.8 },
+            { date: '2017-03-01', value: 2793.9, pib: 80.1 },
+            { date: '2017-06-01', value: 2835.4, pib: 80.4 },
+            { date: '2017-09-01', value: 2876.8, pib: 80.7 },
+            { date: '2017-12-01', value: 2918.3, pib: 81.0 },
+            { date: '2018-03-01', value: 2959.6, pib: 81.3 },
+            { date: '2018-06-01', value: 3000.8, pib: 81.6 },
+            { date: '2018-09-01', value: 3041.4, pib: 81.9 },
+            { date: '2018-12-01', value: 3081.6, pib: 82.2 },
+            { date: '2019-03-01', value: 3121.6, pib: 82.5 },
+            { date: '2019-06-01', value: 3161.2, pib: 82.8 },
+            { date: '2019-09-01', value: 3200.4, pib: 83.1 },
+            { date: '2019-12-01', value: 3239.1, pib: 83.4 },
+            { date: '2020-03-01', value: 3277.8, pib: 83.7 },
+            { date: '2020-06-01', value: 3316.2, pib: 84.0 },
+            { date: '2020-09-01', value: 3354.1, pib: 84.3 },
+            { date: '2020-12-01', value: 3391.5, pib: 84.6 },
+            { date: '2021-03-01', value: 3428.4, pib: 84.9 },
+            { date: '2021-06-01', value: 3464.2, pib: 85.2 },
+            { date: '2021-09-01', value: 3499.8, pib: 85.5 },
+            { date: '2021-12-01', value: 3534.2, pib: 85.8 },
+            { date: '2022-03-01', value: 3567.1, pib: 86.1 },
+            { date: '2022-06-01', value: 3598.5, pib: 86.4 },
+            { date: '2022-09-01', value: 3628.3, pib: 86.7 },
+            { date: '2022-12-01', value: 3656.8, pib: 87.0 },
+            { date: '2023-03-01', value: 3683.9, pib: 87.3 },
+            { date: '2023-06-01', value: 3709.5, pib: 87.6 },
+            { date: '2023-09-01', value: 3733.2, pib: 87.9 },
+            { date: '2023-12-01', value: 3755.3, pib: 88.2 },
+            { date: '2024-03-01', value: 3776.1, pib: 88.5 },
+            { date: '2024-06-01', value: 3795.4, pib: 88.8 },
+            { date: '2024-09-01', value: 3813.6, pib: 89.1 },
+            { date: '2024-12-01', value: 3830.5, pib: 89.4 },
+            { date: '2025-03-01', value: 3346.3, pib: 87.5 },
+            { date: '2025-06-01', value: 3417.2, pib: 88.0 },
+            { date: '2025-09-01', value: 3484.1, pib: 88.5 },
+            { date: '2025-12-01', value: 3460.5, pib: 88.0 },
+            { date: '2026-03-01', value: 3536.1, pib: 117.5 }
+        ];
+
+        // ------------------------------------------------------------
+        // 2. PRÉSIDENTS DE LA Ve RÉPUBLIQUE
+        // ------------------------------------------------------------
+        const presidents = [
+            { name: 'Charles de Gaulle', start: '1959-01-08', end: '1969-04-28', color: '#0b1e3a' },
+            { name: 'Georges Pompidou', start: '1969-06-20', end: '1974-04-02', color: '#0055a4' },
+            { name: 'Valéry Giscard d\'Estaing', start: '1974-05-27', end: '1981-05-21', color: '#d1d5db' },
+            { name: 'François Mitterrand', start: '1981-05-21', end: '1995-05-17', color: '#ef4135' },
+            { name: 'Jacques Chirac', start: '1995-05-17', end: '2007-05-16', color: '#0b1e3a' },
+            { name: 'Nicolas Sarkozy', start: '2007-05-16', end: '2012-05-15', color: '#0055a4' },
+            { name: 'François Hollande', start: '2012-05-15', end: '2017-05-14', color: '#d1d5db' },
+            { name: 'Emmanuel Macron', start: '2017-05-14', end: '2026-08-22', color: '#ef4135' }
+        ];
+
+        // ------------------------------------------------------------
+        // 3. FONCTIONS
+        // ------------------------------------------------------------
+        function formatQuarter(dateStr) {
+            const d = new Date(dateStr);
+            const y = d.getFullYear();
+            const m = d.getMonth();
+            const q = m <= 2 ? 'T1' : m <= 5 ? 'T2' : m <= 8 ? 'T3' : 'T4';
+            return `${y} ${q}`;
+        }
+
+        function getPresidentForDate(dateStr) {
+            const d = new Date(dateStr);
+            for (let p of presidents) {
+                const start = new Date(p.start);
+                const end = new Date(p.end);
+                if (d >= start && d <= end) {
+                    return p.name;
+                }
+            }
+            return 'Inconnu';
+        }
+
+        // ------------------------------------------------------------
+        // 4. STATISTIQUES
+        // ------------------------------------------------------------
+        function renderStats() {
+            const values = debtData.map(d => d.value);
+            const latest = values[values.length - 1];
+            const first = values[0];
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            const totalGrowth = latest - first;
+            const totalGrowthPct = ((latest - first) / first * 100);
+
+            const stats = [
+                { label: 'Dette actuelle', value: latest.toFixed(1), unit: 'Md€', highlight: true },
+                { label: 'Progression totale', value: `${totalGrowth >= 0 ? '+' : ''}${totalGrowth.toFixed(1)}`,
+                    unit: 'Md€', sub: `${totalGrowthPct >= 0 ? '+' : ''}${totalGrowthPct.toFixed(1)}%` },
+                { label: 'Record max', value: max.toFixed(1), unit: 'Md€', sub: 'T4 2024' },
+                { label: 'Niveau min', value: min.toFixed(1), unit: 'Md€', sub: 'T4 1995' },
+                { label: 'Moyenne', value: avg.toFixed(1), unit: 'Md€' },
+                { label: 'Trimestres', value: values.length, unit: '' }
+            ];
+
+            const container = document.getElementById('statsAdvanced');
+            container.innerHTML = stats.map((s, i) => `
+                <div class="stat-card ${s.highlight ? 'highlight' : ''}">
+                    <div class="stat-label">${s.label}</div>
+                    <div class="stat-value">${s.value} <small>${s.unit}</small></div>
+                    ${s.sub ? `<div class="stat-change">${s.sub}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // ------------------------------------------------------------
+        // 5. GRAPHIQUE
+        // ------------------------------------------------------------
+        const ctx = document.getElementById('debtChart').getContext('2d');
+        const labels = debtData.map(d => d.date);
+        const values = debtData.map(d => d.value);
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 85, 164, 0.25)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(239, 65, 53, 0.05)');
+
+        // Créer les annotations pour les présidents (segments colorés)
+        const presidentColors = {
+            'Charles de Gaulle': '#0b1e3a',
+            'Georges Pompidou': '#0055a4',
+            "Valéry Giscard d'Estaing": '#d1d5db',
+            'François Mitterrand': '#ef4135',
+            'Jacques Chirac': '#0b1e3a',
+            'Nicolas Sarkozy': '#0055a4',
+            'François Hollande': '#d1d5db',
+            'Emmanuel Macron': '#ef4135'
+        };
+
+        // Dataset des présidents pour le graphique
+        const presidentDatasets = [];
+        let currentPresident = '';
+        let currentData = [];
+
+        debtData.forEach((d, idx) => {
+            const pres = getPresidentForDate(d.date);
+            if (pres !== currentPresident && currentData.length > 0) {
+                // Sauvegarder le dataset précédent
+                const color = presidentColors[currentPresident] || '#94a3b8';
+                presidentDatasets.push({
+                    label: currentPresident,
+                    data: currentData,
+                    borderColor: color,
+                    borderWidth: 4,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3
+                });
+                currentData = [];
+            }
+            currentPresident = pres;
+            currentData.push({ x: d.date, y: d.value });
+        });
+        // Dernier dataset
+        if (currentData.length > 0) {
+            const color = presidentColors[currentPresident] || '#94a3b8';
+            presidentDatasets.push({
+                label: currentPresident,
+                data: currentData,
+                borderColor: color,
+                borderWidth: 4,
+                pointRadius: 0,
+                fill: false,
+                tension: 0.3
+            });
+        }
+
+        let debtChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Dette brute (Md€)',
+                    data: values,
+                    borderColor: '#0055a4',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#ef4135',
+                    pointHoverBorderColor: '#0055a4',
+                    pointHoverBorderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    order: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { size: 10, weight: '600' },
+                            boxWidth: 12,
+                            padding: 8
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(11, 30, 58, 0.92)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#0055a4',
+                        borderWidth: 2,
+                        padding: 14,
+                        callbacks: {
+                            label: function(context) {
+                                const idx = context.dataIndex;
+                                const d = debtData[idx];
+                                const pres = getPresidentForDate(d.date);
+                                let label = `👤 ${pres}`;
+                                label += `\n💰 Dette : ${d.value.toFixed(1)} Md€`;
+                                if (d.pib) label += ` (${d.pib.toFixed(1)} % PIB)`;
+                                if (idx > 0) {
+                                    const prev = debtData[idx - 1].value;
+                                    const diff = d.value - prev;
+                                    label += `\n📊 T/T : ${diff >= 0 ? '+' : ''}${diff.toFixed(1)} Md€`;
+                                }
+                                return label;
+                            },
+                            title: function(items) {
+                                return formatQuarter(items[0].label);
+                            }
+                        }
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true, speed: 0.1 },
+                            pinch: { enabled: true },
+                            mode: 'x',
+                        },
+                        pan: { enabled: true, mode: 'x' },
+                        limits: { x: { minRange: 5 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'category',
+                        ticks: {
+                            maxTicksLimit: 30,
+                            callback: function(value, index) {
+                                const date = new Date(this.getLabelForValue(value));
+                                const year = date.getFullYear();
+                                const month = date.getMonth();
+                                const q = month <= 2 ? 'T1' : month <= 5 ? 'T2' : month <= 8 ? 'T3' : 'T4';
+                                if (q === 'T1') return `${year}`;
+                                if (year >= 2015 || index % 2 === 0) return q;
+                                return '';
+                            },
+                            font: { weight: '600' }
+                        },
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 1000) return (value / 1000).toFixed(0) + ' kMd€';
+                                return value + ' Md€';
+                            },
+                            font: { weight: '600' }
+                        }
+                    }
+                }
+            }
+        });
+
+        document.querySelectorAll('[data-period]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const period = this.dataset.period;
+                let minIdx = 0,
+                    maxIdx = debtData.length - 1;
+                if (period === '2000') { minIdx = debtData.findIndex(d => d.date ===
+                    '2000-01-01'); } else if (period === '2010') { minIdx = debtData.findIndex(d => d
+                    .date === '2010-01-01'); } else if (period === '2020') { minIdx = debtData.findIndex(d => d
+                    .date === '2020-01-01'); }
+                if (minIdx > 0) {
+                    debtChart.zoomScale('x', { min: minIdx, max: debtData.length - 1 });
+                } else {
+                    debtChart.resetZoom();
+                }
+            });
+        });
+
+        document.getElementById('resetZoom').addEventListener('click', function() {
+            debtChart.resetZoom();
+            document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-period="all"]').classList.add('active');
+        });
+
+        // ------------------------------------------------------------
+        // 6. PRÉSIDENTS
+        // ------------------------------------------------------------
+        function renderPresidents() {
+            const grid = document.getElementById('presidentsGrid');
+            grid.innerHTML = presidents.map(p => {
+                // Trouver la dette au début et à la fin du mandat
+                const startData = debtData.find(d => {
+                    const dDate = new Date(d.date);
+                    const startDate = new Date(p.start);
+                    return dDate >= startDate;
+                });
+                const endData = debtData.filter(d => {
+                    const dDate = new Date(d.date);
+                    const endDate = new Date(p.end);
+                    return dDate <= endDate;
+                });
+                const lastData = endData.length > 0 ? endData[endData.length - 1] : null;
+
+                let startVal = startData ? startData.value : '-';
+                let endVal = lastData ? lastData.value : '-';
+                let change = '-';
+                let changePct = '-';
+                if (startData && lastData && startVal !== '-' && endVal !== '-') {
+                    change = (endVal - startVal).toFixed(1);
+                    changePct = ((endVal - startVal) / startVal * 100).toFixed(1);
+                }
+
+                return `
+                    <div class="president-card">
+                        <div class="name">${p.name}</div>
+                        <div class="dates">${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}</div>
+                        <div class="debt-info">
+                            <span class="start">Début : ${typeof startVal === 'number' ? startVal.toFixed(1) + ' Md€' : '-'}</span><br/>
+                            <span class="end">Fin : ${typeof endVal === 'number' ? endVal.toFixed(1) + ' Md€' : '-'}</span><br/>
+                            <span class="change" style="color: ${parseFloat(change) >= 0 ? '#ef4135' : '#0055a4'};">Évolution : ${change !== '-' ? (parseFloat(change) >= 0 ? '+' : '') + change + ' Md€ (' + changePct + '%)' : '-'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ------------------------------------------------------------
+        // 7. TABLEAU
+        // ------------------------------------------------------------
+        function renderTable(data, sort = 'date-asc', search = '') {
+            const tbody = document.getElementById('tableBody');
+            let filtered = data;
+
+            if (search) {
+                filtered = filtered.filter(d => {
+                    const q = formatQuarter(d.date);
+                    return q.includes(search) || d.date.includes(search) || getPresidentForDate(d.date).includes(
+                    search);
+                });
+            }
+
+            const sorted = [...filtered];
+            switch (sort) {
+                case 'date-desc':
+                    sorted.reverse();
+                    break;
+                case 'value-asc':
+                    sorted.sort((a, b) => a.value - b.value);
+                    break;
+                case 'value-desc':
+                    sorted.sort((a, b) => b.value - a.value);
+                    break;
+                case 'change-desc':
+                    sorted.sort((a, b) => {
+                        const aIdx = debtData.indexOf(a);
+                        const bIdx = debtData.indexOf(b);
+                        const aChange = aIdx > 0 ? a.value - debtData[aIdx - 1].value : 0;
+                        const bChange = bIdx > 0 ? b.value - debtData[bIdx - 1].value : 0;
+                        return bChange - aChange;
+                    });
+                    break;
+                default:
+                    break;
+            }
+
+            tbody.innerHTML = sorted.map((d) => {
+                const dataIdx = debtData.indexOf(d);
+                const prev = dataIdx > 0 ? debtData[dataIdx - 1] : null;
+                const prevYear = dataIdx >= 4 ? debtData[dataIdx - 4] : null;
+                const change = prev ? d.value - prev.value : 0;
+                const changeYear = prevYear ? d.value - prevYear.value : 0;
+                const changeClass = change >= 0 ? 'up' : 'down';
+                const changeYearClass = changeYear >= 0 ? 'up' : 'down';
+                const highlight = dataIdx === debtData.length - 1 || d.value > 3800;
+                const pres = getPresidentForDate(d.date);
+
+                return `
+                    <tr class="${highlight ? 'highlight-row' : ''}">
+                        <td><strong>${formatQuarter(d.date)}</strong></td>
+                        <td>${pres}</td>
+                        <td>${d.value.toFixed(1)} Md€</td>
+                        <td class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)} Md€</td>
+                        <td class="${changeYearClass}">${changeYear >= 0 ? '+' : ''}${changeYear.toFixed(1)} Md€</td>
+                        <td>${d.pib ? d.pib.toFixed(1) : '-'} %</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+
+        function updateTable() {
+            renderTable(debtData, sortSelect.value, searchInput.value);
+        }
+
+        searchInput.addEventListener('input', updateTable);
+        sortSelect.addEventListener('change', updateTable);
+
+        // ------------------------------------------------------------
+        // 8. INIT
+        // ------------------------------------------------------------
+        renderStats();
+        renderPresidents();
+        renderTable(debtData, 'date-asc', '');
+
+        console.log('🇫🇷 Dashboard avec les 8 présidents de la Ve République');
+        console.log(`📊 ${debtData.length} trimestres (T4 1995 - T1 2026)`);
+    </script>
+</body>
+</html>
