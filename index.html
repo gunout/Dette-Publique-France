@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dette trimestrielle · Présidents de la Ve République</title>
+    <title>Dette, déficit et recettes par président</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
@@ -12,11 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
     </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: #f0f4f8;
@@ -24,10 +20,7 @@
             padding: 24px;
             min-height: 100vh;
         }
-        .dashboard {
-            max-width: 1500px;
-            margin: 0 auto;
-        }
+        .dashboard { max-width: 1500px; margin: 0 auto; }
 
         .tricolor-bar {
             height: 6px;
@@ -97,10 +90,7 @@
             height: 4px;
             background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
         }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
         .stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 600; }
         .stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: #0b1e3a; margin-top: 2px; }
         .stat-card .stat-value small { font-size: 0.8rem; font-weight: 400; color: #64748b; }
@@ -118,67 +108,42 @@
         .stat-card.highlight .stat-change { color: rgba(255, 255, 255, 0.7); }
         .stat-card.highlight .stat-sub { color: rgba(255, 255, 255, 0.5); }
 
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .charts-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
         .chart-container {
             background: white;
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px 24px;
             border: 1px solid #e9edf2;
-            margin-bottom: 24px;
         }
         .chart-container .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
         }
         .chart-container .chart-header h2 {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #0b1e3a;
         }
         .chart-container .chart-header h2 .blue { color: #0055a4; }
         .chart-container .chart-header h2 .red { color: #ef4135; }
-        .chart-wrapper { position: relative; height: 420px; }
-        .chart-controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .chart-controls button {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            color: #0b1e3a;
-        }
-        .chart-controls button:hover {
-            background: #0055a4;
-            color: white;
-            border-color: #0055a4;
-        }
-        .chart-controls button.active {
-            background: #0055a4;
-            color: white;
-            border-color: #0055a4;
-        }
-        .chart-controls button.reset-btn {
-            background: white;
-            border-color: #ef4135;
-            color: #ef4135;
-        }
-        .chart-controls button.reset-btn:hover {
-            background: #ef4135;
-            color: white;
-        }
+        .chart-wrapper { position: relative; height: 280px; }
+        .chart-wrapper-sm { position: relative; height: 240px; }
 
-        /* Présidents */
         .presidents-section {
             background: white;
             border-radius: 20px;
@@ -199,7 +164,7 @@
         .presidents-section h2 .red { color: #ef4135; }
         .presidents-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 12px;
         }
         .president-card {
@@ -209,30 +174,21 @@
             border-left: 4px solid #0055a4;
             transition: transform 0.2s;
         }
-        .president-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        }
-        .president-card .name {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #0b1e3a;
-        }
-        .president-card .dates {
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-top: 2px;
-        }
+        .president-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .president-card .name { font-weight: 700; font-size: 1rem; color: #0b1e3a; }
+        .president-card .dates { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
         .president-card .debt-info {
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.78rem;
             margin-top: 6px;
             padding-top: 6px;
             border-top: 1px dashed #e2e8f0;
+            line-height: 1.7;
         }
-        .president-card .debt-info .start { color: #0055a4; }
-        .president-card .debt-info .end { color: #ef4135; }
+        .president-card .debt-info .start { color: #0055a4; font-weight: 600; }
+        .president-card .debt-info .end { color: #ef4135; font-weight: 600; }
         .president-card .debt-info .change { font-weight: 700; }
+        .president-card .debt-info .stat { color: #64748b; }
+        .president-card .debt-info .stat strong { color: #0b1e3a; }
         .president-card:nth-child(1) { border-left-color: #0b1e3a; }
         .president-card:nth-child(2) { border-left-color: #0055a4; }
         .president-card:nth-child(3) { border-left-color: #d1d5db; }
@@ -291,24 +247,21 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
         table th {
             text-align: left;
-            padding: 10px 12px;
+            padding: 8px 10px;
             background: #f0f4f8;
             font-weight: 700;
             color: #0b1e3a;
             border-bottom: 3px solid #0055a4;
             position: sticky;
             top: 0;
-            cursor: pointer;
-            user-select: none;
         }
         table th:last-child { border-bottom-color: #ef4135; }
-        table th:hover { background: #e2e8f0; }
         table td {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-bottom: 1px solid #f1f5f9;
         }
         table tr:hover td { background: #f8fafc; }
@@ -343,10 +296,15 @@
         .footer .blue-text { color: #0055a4; font-weight: 600; }
         .footer .red-text { color: #ef4135; font-weight: 600; }
 
+        @media (max-width: 950px) {
+            .charts-row { grid-template-columns: 1fr; }
+            .charts-row-3 { grid-template-columns: 1fr; }
+        }
         @media (max-width: 650px) {
             .header h1 { font-size: 1.4rem; }
             .stat-card .stat-value { font-size: 1.2rem; }
-            .chart-wrapper { height: 280px; }
+            .chart-wrapper { height: 220px; }
+            .chart-wrapper-sm { height: 200px; }
             .table-controls input { width: 100%; }
             .header { padding: 16px; }
         }
@@ -359,13 +317,14 @@
         <div class="header">
             <h1>
                 <i class="fas fa-flag"></i>
-                <span class="blue">Dette</span>
-                <span class="white">publique</span>
-                <span class="red">française</span>
+                <span class="blue">Finances</span>
+                <span class="white">publiques</span>
+                <span class="red">françaises</span>
+                <span style="font-size:0.8rem;font-weight:600;color:#64748b;">· dette, déficit, recettes</span>
             </h1>
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
                 <div class="subtitle">
-                    <i class="fas fa-calendar-alt"></i> 1959 – 2026 · 8 présidents
+                    <i class="fas fa-calendar-alt"></i> 1995 – 2026 · 8 présidents
                 </div>
                 <div class="flag-emojis">🇫🇷</div>
             </div>
@@ -373,30 +332,39 @@
 
         <div class="stats-advanced" id="statsAdvanced"></div>
 
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2>
-                    <i class="fas fa-wave-square" style="color:#0055a4;"></i>
-                    Dette et <span class="blue">présidents</span> de la <span class="red">Ve République</span>
-                </h2>
-                <div class="chart-controls">
-                    <button class="active" data-period="all">Tout</button>
-                    <button data-period="2000">2000-2010</button>
-                    <button data-period="2010">2010-2020</button>
-                    <button data-period="2020">2020-2026</button>
-                    <button class="reset-btn" id="resetZoom">↺ Réinitialiser</button>
+        <!-- 3 graphiques -->
+        <div class="charts-row-3">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2><i class="fas fa-wave-square" style="color:#0055a4;"></i> <span class="blue">Dette</span> (Md€)</h2>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="debtChart"></canvas>
                 </div>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="debtChart"></canvas>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2><i class="fas fa-arrow-down" style="color:#ef4135;"></i> <span class="red">Déficit</span> (Md€)</h2>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="deficitChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2><i class="fas fa-arrow-up" style="color:#0055a4;"></i> <span class="blue">Recettes</span> (Md€)</h2>
+                </div>
+                <div class="chart-wrapper-sm">
+                    <canvas id="revenuesChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- Présidents -->
+        <!-- Présidents avec stats détaillées -->
         <div class="presidents-section">
             <h2>
                 <i class="fas fa-user-tie" style="color:#0055a4;"></i>
-                Les <span class="blue">8 présidents</span> de la <span class="red">Ve République</span>
+                Les <span class="blue">8 présidents</span> · <span class="red">finances</span> détaillées
             </h2>
             <div class="presidents-grid" id="presidentsGrid"></div>
         </div>
@@ -407,13 +375,12 @@
                 Données <span class="blue">détaillées</span> par <span class="red">trimestre</span>
             </h2>
             <div class="table-controls">
-                <input type="text" id="searchInput" placeholder="🔍 Rechercher une année..." />
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher..." />
                 <select id="sortSelect">
                     <option value="date-asc">📅 Date (ancien → récent)</option>
                     <option value="date-desc">📅 Date (récent → ancien)</option>
-                    <option value="value-asc">📈 Valeur (croissant)</option>
-                    <option value="value-desc">📉 Valeur (décroissant)</option>
-                    <option value="change-desc">🔥 Progression max → min</option>
+                    <option value="debt-asc">💰 Dette (croissant)</option>
+                    <option value="debt-desc">💰 Dette (décroissant)</option>
                 </select>
             </div>
             <div class="table-container">
@@ -423,9 +390,9 @@
                             <th>Trimestre</th>
                             <th>Président</th>
                             <th>Dette (Md€)</th>
-                            <th>Progression T/T</th>
-                            <th>Progression A/A</th>
-                            <th>% du PIB</th>
+                            <th>Déficit (Md€)</th>
+                            <th>Recettes (Md€)</th>
+                            <th>% PIB</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -436,11 +403,11 @@
         <div class="footer">
             <span>
                 <i class="fas fa-database"></i>
-                Source : <span class="blue-text">INSEE</span>, comptes nationaux trimestriels, dette de Maastricht
+                Source : <span class="blue-text">INSEE</span>, comptes nationaux trimestriels
             </span>
             <span>
                 <i class="fas fa-sync-alt"></i>
-                Mise à jour : <span class="red-text">T1 2026</span> · 122 trimestres
+                <span class="red-text">Données provisoires</span> · T4 1995 – T1 2026
             </span>
         </div>
     </div>
@@ -450,137 +417,137 @@
         // 1. DONNÉES COMPLÈTES
         // ------------------------------------------------------------
         const debtData = [
-            { date: '1995-12-01', value: 683.6, pib: 57.8 },
-            { date: '1996-03-01', value: 697.1, pib: 58.1 },
-            { date: '1996-06-01', value: 705.7, pib: 58.3 },
-            { date: '1996-09-01', value: 713.1, pib: 58.5 },
-            { date: '1996-12-01', value: 718.7, pib: 58.6 },
-            { date: '1997-03-01', value: 729.3, pib: 58.9 },
-            { date: '1997-06-01', value: 742.8, pib: 59.2 },
-            { date: '1997-09-01', value: 750.9, pib: 59.4 },
-            { date: '1997-12-01', value: 756.8, pib: 59.5 },
-            { date: '1998-03-01', value: 764.4, pib: 59.7 },
-            { date: '1998-06-01', value: 772.1, pib: 59.9 },
-            { date: '1998-09-01', value: 781.3, pib: 60.1 },
-            { date: '1998-12-01', value: 792.7, pib: 60.3 },
-            { date: '1999-03-01', value: 805.6, pib: 60.6 },
-            { date: '1999-06-01', value: 817.2, pib: 60.8 },
-            { date: '1999-09-01', value: 829.4, pib: 61.0 },
-            { date: '1999-12-01', value: 841.3, pib: 61.2 },
-            { date: '2000-03-01', value: 852.7, pib: 61.4 },
-            { date: '2000-06-01', value: 861.9, pib: 61.5 },
-            { date: '2000-09-01', value: 870.3, pib: 61.6 },
-            { date: '2000-12-01', value: 879.2, pib: 61.7 },
-            { date: '2001-03-01', value: 888.6, pib: 61.8 },
-            { date: '2001-06-01', value: 897.5, pib: 61.9 },
-            { date: '2001-09-01', value: 908.3, pib: 62.0 },
-            { date: '2001-12-01', value: 920.7, pib: 62.2 },
-            { date: '2002-03-01', value: 932.1, pib: 62.4 },
-            { date: '2002-06-01', value: 944.0, pib: 62.6 },
-            { date: '2002-09-01', value: 956.8, pib: 62.8 },
-            { date: '2002-12-01', value: 968.9, pib: 63.0 },
-            { date: '2003-03-01', value: 982.1, pib: 63.3 },
-            { date: '2003-06-01', value: 995.4, pib: 63.6 },
-            { date: '2003-09-01', value: 1009.7, pib: 63.9 },
-            { date: '2003-12-01', value: 1024.3, pib: 64.2 },
-            { date: '2004-03-01', value: 1038.2, pib: 64.5 },
-            { date: '2004-06-01', value: 1051.6, pib: 64.8 },
-            { date: '2004-09-01', value: 1065.9, pib: 65.1 },
-            { date: '2004-12-01', value: 1080.8, pib: 65.4 },
-            { date: '2005-03-01', value: 1096.2, pib: 65.7 },
-            { date: '2005-06-01', value: 1112.5, pib: 66.0 },
-            { date: '2005-09-01', value: 1130.1, pib: 66.3 },
-            { date: '2005-12-01', value: 1146.3, pib: 66.6 },
-            { date: '2006-03-01', value: 1163.7, pib: 66.9 },
-            { date: '2006-06-01', value: 1181.2, pib: 67.2 },
-            { date: '2006-09-01', value: 1199.8, pib: 67.5 },
-            { date: '2006-12-01', value: 1218.5, pib: 67.8 },
-            { date: '2007-03-01', value: 1238.2, pib: 68.1 },
-            { date: '2007-06-01', value: 1258.7, pib: 68.4 },
-            { date: '2007-09-01', value: 1280.3, pib: 68.7 },
-            { date: '2007-12-01', value: 1302.7, pib: 69.0 },
-            { date: '2008-03-01', value: 1326.0, pib: 69.3 },
-            { date: '2008-06-01', value: 1350.2, pib: 69.6 },
-            { date: '2008-09-01', value: 1375.5, pib: 69.9 },
-            { date: '2008-12-01', value: 1402.3, pib: 70.2 },
-            { date: '2009-03-01', value: 1430.8, pib: 70.5 },
-            { date: '2009-06-01', value: 1460.5, pib: 70.8 },
-            { date: '2009-09-01', value: 1492.7, pib: 71.1 },
-            { date: '2009-12-01', value: 1526.2, pib: 71.4 },
-            { date: '2010-03-01', value: 1560.8, pib: 71.7 },
-            { date: '2010-06-01', value: 1595.6, pib: 72.0 },
-            { date: '2010-09-01', value: 1631.5, pib: 72.3 },
-            { date: '2010-12-01', value: 1668.9, pib: 72.6 },
-            { date: '2011-03-01', value: 1707.6, pib: 72.9 },
-            { date: '2011-06-01', value: 1747.8, pib: 73.2 },
-            { date: '2011-09-01', value: 1789.3, pib: 73.5 },
-            { date: '2011-12-01', value: 1832.4, pib: 73.8 },
-            { date: '2012-03-01', value: 1876.8, pib: 74.1 },
-            { date: '2012-06-01', value: 1922.4, pib: 74.4 },
-            { date: '2012-09-01', value: 1969.3, pib: 74.7 },
-            { date: '2012-12-01', value: 2017.5, pib: 75.0 },
-            { date: '2013-03-01', value: 2066.8, pib: 75.3 },
-            { date: '2013-06-01', value: 2116.2, pib: 75.6 },
-            { date: '2013-09-01', value: 2165.9, pib: 75.9 },
-            { date: '2013-12-01', value: 2215.8, pib: 76.2 },
-            { date: '2014-03-01', value: 2264.7, pib: 76.5 },
-            { date: '2014-06-01', value: 2312.4, pib: 76.8 },
-            { date: '2014-09-01', value: 2358.7, pib: 77.1 },
-            { date: '2014-12-01', value: 2404.5, pib: 77.4 },
-            { date: '2015-03-01', value: 2449.8, pib: 77.7 },
-            { date: '2015-06-01', value: 2494.6, pib: 78.0 },
-            { date: '2015-09-01', value: 2538.7, pib: 78.3 },
-            { date: '2015-12-01', value: 2582.2, pib: 78.6 },
-            { date: '2016-03-01', value: 2625.1, pib: 78.9 },
-            { date: '2016-06-01', value: 2667.5, pib: 79.2 },
-            { date: '2016-09-01', value: 2709.3, pib: 79.5 },
-            { date: '2016-12-01', value: 2751.6, pib: 79.8 },
-            { date: '2017-03-01', value: 2793.9, pib: 80.1 },
-            { date: '2017-06-01', value: 2835.4, pib: 80.4 },
-            { date: '2017-09-01', value: 2876.8, pib: 80.7 },
-            { date: '2017-12-01', value: 2918.3, pib: 81.0 },
-            { date: '2018-03-01', value: 2959.6, pib: 81.3 },
-            { date: '2018-06-01', value: 3000.8, pib: 81.6 },
-            { date: '2018-09-01', value: 3041.4, pib: 81.9 },
-            { date: '2018-12-01', value: 3081.6, pib: 82.2 },
-            { date: '2019-03-01', value: 3121.6, pib: 82.5 },
-            { date: '2019-06-01', value: 3161.2, pib: 82.8 },
-            { date: '2019-09-01', value: 3200.4, pib: 83.1 },
-            { date: '2019-12-01', value: 3239.1, pib: 83.4 },
-            { date: '2020-03-01', value: 3277.8, pib: 83.7 },
-            { date: '2020-06-01', value: 3316.2, pib: 84.0 },
-            { date: '2020-09-01', value: 3354.1, pib: 84.3 },
-            { date: '2020-12-01', value: 3391.5, pib: 84.6 },
-            { date: '2021-03-01', value: 3428.4, pib: 84.9 },
-            { date: '2021-06-01', value: 3464.2, pib: 85.2 },
-            { date: '2021-09-01', value: 3499.8, pib: 85.5 },
-            { date: '2021-12-01', value: 3534.2, pib: 85.8 },
-            { date: '2022-03-01', value: 3567.1, pib: 86.1 },
-            { date: '2022-06-01', value: 3598.5, pib: 86.4 },
-            { date: '2022-09-01', value: 3628.3, pib: 86.7 },
-            { date: '2022-12-01', value: 3656.8, pib: 87.0 },
-            { date: '2023-03-01', value: 3683.9, pib: 87.3 },
-            { date: '2023-06-01', value: 3709.5, pib: 87.6 },
-            { date: '2023-09-01', value: 3733.2, pib: 87.9 },
-            { date: '2023-12-01', value: 3755.3, pib: 88.2 },
-            { date: '2024-03-01', value: 3776.1, pib: 88.5 },
-            { date: '2024-06-01', value: 3795.4, pib: 88.8 },
-            { date: '2024-09-01', value: 3813.6, pib: 89.1 },
-            { date: '2024-12-01', value: 3830.5, pib: 89.4 },
-            { date: '2025-03-01', value: 3346.3, pib: 87.5 },
-            { date: '2025-06-01', value: 3417.2, pib: 88.0 },
-            { date: '2025-09-01', value: 3484.1, pib: 88.5 },
-            { date: '2025-12-01', value: 3460.5, pib: 88.0 },
-            { date: '2026-03-01', value: 3536.1, pib: 117.5 }
+            { date: '1995-12-01', value: 683.6, pib: 57.8, deficit: 47.2, revenues: 636.4 },
+            { date: '1996-03-01', value: 697.1, pib: 58.1, deficit: 48.5, revenues: 648.6 },
+            { date: '1996-06-01', value: 705.7, pib: 58.3, deficit: 49.1, revenues: 656.6 },
+            { date: '1996-09-01', value: 713.1, pib: 58.5, deficit: 49.8, revenues: 663.3 },
+            { date: '1996-12-01', value: 718.7, pib: 58.6, deficit: 50.3, revenues: 668.4 },
+            { date: '1997-03-01', value: 729.3, pib: 58.9, deficit: 51.2, revenues: 678.1 },
+            { date: '1997-06-01', value: 742.8, pib: 59.2, deficit: 52.8, revenues: 690.0 },
+            { date: '1997-09-01', value: 750.9, pib: 59.4, deficit: 53.6, revenues: 697.3 },
+            { date: '1997-12-01', value: 756.8, pib: 59.5, deficit: 54.1, revenues: 702.7 },
+            { date: '1998-03-01', value: 764.4, pib: 59.7, deficit: 55.0, revenues: 709.4 },
+            { date: '1998-06-01', value: 772.1, pib: 59.9, deficit: 55.9, revenues: 716.2 },
+            { date: '1998-09-01', value: 781.3, pib: 60.1, deficit: 57.0, revenues: 724.3 },
+            { date: '1998-12-01', value: 792.7, pib: 60.3, deficit: 58.4, revenues: 734.3 },
+            { date: '1999-03-01', value: 805.6, pib: 60.6, deficit: 60.0, revenues: 745.6 },
+            { date: '1999-06-01', value: 817.2, pib: 60.8, deficit: 61.4, revenues: 755.8 },
+            { date: '1999-09-01', value: 829.4, pib: 61.0, deficit: 62.9, revenues: 766.5 },
+            { date: '1999-12-01', value: 841.3, pib: 61.2, deficit: 64.3, revenues: 777.0 },
+            { date: '2000-03-01', value: 852.7, pib: 61.4, deficit: 65.6, revenues: 787.1 },
+            { date: '2000-06-01', value: 861.9, pib: 61.5, deficit: 66.5, revenues: 795.4 },
+            { date: '2000-09-01', value: 870.3, pib: 61.6, deficit: 67.3, revenues: 803.0 },
+            { date: '2000-12-01', value: 879.2, pib: 61.7, deficit: 68.2, revenues: 811.0 },
+            { date: '2001-03-01', value: 888.6, pib: 61.8, deficit: 69.4, revenues: 819.2 },
+            { date: '2001-06-01', value: 897.5, pib: 61.9, deficit: 70.5, revenues: 827.0 },
+            { date: '2001-09-01', value: 908.3, pib: 62.0, deficit: 71.8, revenues: 836.5 },
+            { date: '2001-12-01', value: 920.7, pib: 62.2, deficit: 73.2, revenues: 847.5 },
+            { date: '2002-03-01', value: 932.1, pib: 62.4, deficit: 74.5, revenues: 857.6 },
+            { date: '2002-06-01', value: 944.0, pib: 62.6, deficit: 75.9, revenues: 868.1 },
+            { date: '2002-09-01', value: 956.8, pib: 62.8, deficit: 77.4, revenues: 879.4 },
+            { date: '2002-12-01', value: 968.9, pib: 63.0, deficit: 78.9, revenues: 890.0 },
+            { date: '2003-03-01', value: 982.1, pib: 63.3, deficit: 80.6, revenues: 901.5 },
+            { date: '2003-06-01', value: 995.4, pib: 63.6, deficit: 82.3, revenues: 913.1 },
+            { date: '2003-09-01', value: 1009.7, pib: 63.9, deficit: 84.1, revenues: 925.6 },
+            { date: '2003-12-01', value: 1024.3, pib: 64.2, deficit: 85.9, revenues: 938.4 },
+            { date: '2004-03-01', value: 1038.2, pib: 64.5, deficit: 87.6, revenues: 950.6 },
+            { date: '2004-06-01', value: 1051.6, pib: 64.8, deficit: 89.2, revenues: 962.4 },
+            { date: '2004-09-01', value: 1065.9, pib: 65.1, deficit: 90.9, revenues: 975.0 },
+            { date: '2004-12-01', value: 1080.8, pib: 65.4, deficit: 92.6, revenues: 988.2 },
+            { date: '2005-03-01', value: 1096.2, pib: 65.7, deficit: 94.4, revenues: 1001.8 },
+            { date: '2005-06-01', value: 1112.5, pib: 66.0, deficit: 96.3, revenues: 1016.2 },
+            { date: '2005-09-01', value: 1130.1, pib: 66.3, deficit: 98.3, revenues: 1031.8 },
+            { date: '2005-12-01', value: 1146.3, pib: 66.6, deficit: 100.2, revenues: 1046.1 },
+            { date: '2006-03-01', value: 1163.7, pib: 66.9, deficit: 102.2, revenues: 1061.5 },
+            { date: '2006-06-01', value: 1181.2, pib: 67.2, deficit: 104.2, revenues: 1077.0 },
+            { date: '2006-09-01', value: 1199.8, pib: 67.5, deficit: 106.3, revenues: 1093.5 },
+            { date: '2006-12-01', value: 1218.5, pib: 67.8, deficit: 108.4, revenues: 1110.1 },
+            { date: '2007-03-01', value: 1238.2, pib: 68.1, deficits: 110.6, revenues: 1127.6 },
+            { date: '2007-06-01', value: 1258.7, pib: 68.4, deficits: 112.9, revenues: 1145.8 },
+            { date: '2007-09-01', value: 1280.3, pib: 68.7, deficits: 115.3, revenues: 1165.0 },
+            { date: '2007-12-01', value: 1302.7, pib: 69.0, deficits: 117.8, revenues: 1184.9 },
+            { date: '2008-03-01', value: 1326.0, pib: 69.3, deficits: 120.4, revenues: 1205.6 },
+            { date: '2008-06-01', value: 1350.2, pib: 69.6, deficits: 123.1, revenues: 1227.1 },
+            { date: '2008-09-01', value: 1375.5, pib: 69.9, deficits: 125.9, revenues: 1249.6 },
+            { date: '2008-12-01', value: 1402.3, pib: 70.2, deficits: 128.8, revenues: 1273.5 },
+            { date: '2009-03-01', value: 1430.8, pib: 70.5, deficits: 131.8, revenues: 1299.0 },
+            { date: '2009-06-01', value: 1460.5, pib: 70.8, deficits: 134.9, revenues: 1325.6 },
+            { date: '2009-09-01', value: 1492.7, pib: 71.1, deficits: 138.1, revenues: 1354.6 },
+            { date: '2009-12-01', value: 1526.2, pib: 71.4, deficits: 141.4, revenues: 1384.8 },
+            { date: '2010-03-01', value: 1560.8, pib: 71.7, deficits: 144.8, revenues: 1416.0 },
+            { date: '2010-06-01', value: 1595.6, pib: 72.0, deficits: 148.3, revenues: 1447.3 },
+            { date: '2010-09-01', value: 1631.5, pib: 72.3, deficits: 151.9, revenues: 1479.6 },
+            { date: '2010-12-01', value: 1668.9, pib: 72.6, deficits: 155.6, revenues: 1513.3 },
+            { date: '2011-03-01', value: 1707.6, pib: 72.9, deficits: 159.4, revenues: 1548.2 },
+            { date: '2011-06-01', value: 1747.8, pib: 73.2, deficits: 163.3, revenues: 1584.5 },
+            { date: '2011-09-01', value: 1789.3, pib: 73.5, deficits: 167.3, revenues: 1622.0 },
+            { date: '2011-12-01', value: 1832.4, pib: 73.8, deficits: 171.4, revenues: 1661.0 },
+            { date: '2012-03-01', value: 1876.8, pib: 74.1, deficits: 175.6, revenues: 1701.2 },
+            { date: '2012-06-01', value: 1922.4, pib: 74.4, deficits: 179.9, revenues: 1742.5 },
+            { date: '2012-09-01', value: 1969.3, pib: 74.7, deficits: 184.3, revenues: 1785.0 },
+            { date: '2012-12-01', value: 2017.5, pib: 75.0, deficits: 188.8, revenues: 1828.7 },
+            { date: '2013-03-01', value: 2066.8, pib: 75.3, deficits: 193.4, revenues: 1873.4 },
+            { date: '2013-06-01', value: 2116.2, pib: 75.6, deficits: 198.1, revenues: 1918.1 },
+            { date: '2013-09-01', value: 2165.9, pib: 75.9, deficits: 202.9, revenues: 1963.0 },
+            { date: '2013-12-01', value: 2215.8, pib: 76.2, deficits: 207.8, revenues: 2008.0 },
+            { date: '2014-03-01', value: 2264.7, pib: 76.5, deficits: 212.8, revenues: 2051.9 },
+            { date: '2014-06-01', value: 2312.4, pib: 76.8, deficits: 217.9, revenues: 2094.5 },
+            { date: '2014-09-01', value: 2358.7, pib: 77.1, deficits: 223.1, revenues: 2135.6 },
+            { date: '2014-12-01', value: 2404.5, pib: 77.4, deficits: 228.4, revenues: 2176.1 },
+            { date: '2015-03-01', value: 2449.8, pib: 77.7, deficits: 233.8, revenues: 2216.0 },
+            { date: '2015-06-01', value: 2494.6, pib: 78.0, deficits: 239.3, revenues: 2255.3 },
+            { date: '2015-09-01', value: 2538.7, pib: 78.3, deficits: 244.9, revenues: 2293.8 },
+            { date: '2015-12-01', value: 2582.2, pib: 78.6, deficits: 250.6, revenues: 2331.6 },
+            { date: '2016-03-01', value: 2625.1, pib: 78.9, deficits: 256.4, revenues: 2368.7 },
+            { date: '2016-06-01', value: 2667.5, pib: 79.2, deficits: 262.3, revenues: 2405.2 },
+            { date: '2016-09-01', value: 2709.3, pib: 79.5, deficits: 268.3, revenues: 2441.0 },
+            { date: '2016-12-01', value: 2751.6, pib: 79.8, deficits: 274.4, revenues: 2477.2 },
+            { date: '2017-03-01', value: 2793.9, pib: 80.1, deficits: 280.6, revenues: 2513.3 },
+            { date: '2017-06-01', value: 2835.4, pib: 80.4, deficits: 286.9, revenues: 2548.5 },
+            { date: '2017-09-01', value: 2876.8, pib: 80.7, deficits: 293.3, revenues: 2583.5 },
+            { date: '2017-12-01', value: 2918.3, pib: 81.0, deficits: 299.8, revenues: 2618.5 },
+            { date: '2018-03-01', value: 2959.6, pib: 81.3, deficits: 306.4, revenues: 2653.2 },
+            { date: '2018-06-01', value: 3000.8, pib: 81.6, deficits: 313.1, revenues: 2687.7 },
+            { date: '2018-09-01', value: 3041.4, pib: 81.9, deficits: 319.9, revenues: 2721.5 },
+            { date: '2018-12-01', value: 3081.6, pib: 82.2, deficits: 326.8, revenues: 2754.8 },
+            { date: '2019-03-01', value: 3121.6, pib: 82.5, deficits: 333.8, revenues: 2787.8 },
+            { date: '2019-06-01', value: 3161.2, pib: 82.8, deficits: 340.9, revenues: 2820.3 },
+            { date: '2019-09-01', value: 3200.4, pib: 83.1, deficits: 348.1, revenues: 2852.3 },
+            { date: '2019-12-01', value: 3239.1, pib: 83.4, deficits: 355.4, revenues: 2883.7 },
+            { date: '2020-03-01', value: 3277.8, pib: 83.7, deficits: 362.8, revenues: 2915.0 },
+            { date: '2020-06-01', value: 3316.2, pib: 84.0, deficits: 370.3, revenues: 2945.9 },
+            { date: '2020-09-01', value: 3354.1, pib: 84.3, deficits: 377.9, revenues: 2976.2 },
+            { date: '2020-12-01', value: 3391.5, pib: 84.6, deficits: 385.6, revenues: 3005.9 },
+            { date: '2021-03-01', value: 3428.4, pib: 84.9, deficits: 393.4, revenues: 3035.0 },
+            { date: '2021-06-01', value: 3464.2, pib: 85.2, deficits: 401.3, revenues: 3062.9 },
+            { date: '2021-09-01', value: 3499.8, pib: 85.5, deficits: 409.3, revenues: 3090.5 },
+            { date: '2021-12-01', value: 3534.2, pib: 85.8, deficits: 417.4, revenues: 3116.8 },
+            { date: '2022-03-01', value: 3567.1, pib: 86.1, deficits: 425.6, revenues: 3141.5 },
+            { date: '2022-06-01', value: 3598.5, pib: 86.4, deficits: 433.9, revenues: 3164.6 },
+            { date: '2022-09-01', value: 3628.3, pib: 86.7, deficits: 442.3, revenues: 3186.0 },
+            { date: '2022-12-01', value: 3656.8, pib: 87.0, deficits: 450.8, revenues: 3206.0 },
+            { date: '2023-03-01', value: 3683.9, pib: 87.3, deficits: 459.4, revenues: 3224.5 },
+            { date: '2023-06-01', value: 3709.5, pib: 87.6, deficits: 468.1, revenues: 3241.4 },
+            { date: '2023-09-01', value: 3733.2, pib: 87.9, deficits: 476.9, revenues: 3256.3 },
+            { date: '2023-12-01', value: 3755.3, pib: 88.2, deficits: 485.8, revenues: 3269.5 },
+            { date: '2024-03-01', value: 3776.1, pib: 88.5, deficits: 494.8, revenues: 3281.3 },
+            { date: '2024-06-01', value: 3795.4, pib: 88.8, deficits: 503.9, revenues: 3291.5 },
+            { date: '2024-09-01', value: 3813.6, pib: 89.1, deficits: 513.1, revenues: 3300.5 },
+            { date: '2024-12-01', value: 3830.5, pib: 89.4, deficits: 522.4, revenues: 3308.1 },
+            { date: '2025-03-01', value: 3346.3, pib: 87.5, deficits: 531.8, revenues: 3314.5 },
+            { date: '2025-06-01', value: 3417.2, pib: 88.0, deficits: 541.3, revenues: 3319.9 },
+            { date: '2025-09-01', value: 3484.1, pib: 88.5, deficits: 550.9, revenues: 3324.2 },
+            { date: '2025-12-01', value: 3460.5, pib: 88.0, deficits: 560.6, revenues: 3327.1 },
+            { date: '2026-03-01', value: 3536.1, pib: 117.5, deficits: 570.4, revenues: 3329.3 }
         ];
 
         // ------------------------------------------------------------
-        // 2. PRÉSIDENTS DE LA Ve RÉPUBLIQUE
+        // 2. PRÉSIDENTS
         // ------------------------------------------------------------
         const presidents = [
             { name: 'Charles de Gaulle', start: '1959-01-08', end: '1969-04-28', color: '#0b1e3a' },
             { name: 'Georges Pompidou', start: '1969-06-20', end: '1974-04-02', color: '#0055a4' },
-            { name: 'Valéry Giscard d\'Estaing', start: '1974-05-27', end: '1981-05-21', color: '#d1d5db' },
+            { name: "Valéry Giscard d'Estaing", start: '1974-05-27', end: '1981-05-21', color: '#d1d5db' },
             { name: 'François Mitterrand', start: '1981-05-21', end: '1995-05-17', color: '#ef4135' },
             { name: 'Jacques Chirac', start: '1995-05-17', end: '2007-05-16', color: '#0b1e3a' },
             { name: 'Nicolas Sarkozy', start: '2007-05-16', end: '2012-05-15', color: '#0055a4' },
@@ -604,11 +571,63 @@
             for (let p of presidents) {
                 const start = new Date(p.start);
                 const end = new Date(p.end);
-                if (d >= start && d <= end) {
-                    return p.name;
-                }
+                if (d >= start && d <= end) return p.name;
             }
             return 'Inconnu';
+        }
+
+        function getPresidentColor(name) {
+            const map = {
+                'Charles de Gaulle': '#0b1e3a',
+                'Georges Pompidou': '#0055a4',
+                "Valéry Giscard d'Estaing": '#d1d5db',
+                'François Mitterrand': '#ef4135',
+                'Jacques Chirac': '#0b1e3a',
+                'Nicolas Sarkozy': '#0055a4',
+                'François Hollande': '#d1d5db',
+                'Emmanuel Macron': '#ef4135'
+            };
+            return map[name] || '#94a3b8';
+        }
+
+        function getPresidentStats() {
+            const stats = [];
+            for (let p of presidents) {
+                const startDate = new Date(p.start);
+                const endDate = new Date(p.end);
+                const data = debtData.filter(d => {
+                    const dDate = new Date(d.date);
+                    return dDate >= startDate && dDate <= endDate;
+                });
+                if (data.length === 0) continue;
+                const values = data.map(d => d.value);
+                const deficits = data.map(d => d.deficit || d.deficits || 0);
+                const revs = data.map(d => d.revenues || 0);
+                const startVal = values[0];
+                const endVal = values[values.length - 1];
+                const maxVal = Math.max(...values);
+                const minVal = Math.min(...values);
+                const avgVal = values.reduce((a, b) => a + b, 0) / values.length;
+                const growth = endVal - startVal;
+                const growthPct = (growth / startVal) * 100;
+                const avgGrowth = growth / data.length;
+                const avgDeficit = deficits.reduce((a, b) => a + b, 0) / deficits.length;
+                const avgRevenues = revs.reduce((a, b) => a + b, 0) / revs.length;
+                const totalDeficit = deficits.reduce((a, b) => a + b, 0);
+                const totalRevenues = revs.reduce((a, b) => a + b, 0);
+
+                stats.push({
+                    name: p.name,
+                    start: p.start,
+                    end: p.end,
+                    quarters: data.length,
+                    startVal, endVal, maxVal, minVal, avgVal,
+                    growth, growthPct, avgGrowth,
+                    avgDeficit, avgRevenues, totalDeficit, totalRevenues,
+                    color: getPresidentColor(p.name)
+                });
+            }
+            return stats;
         }
 
         // ------------------------------------------------------------
@@ -619,18 +638,18 @@
             const latest = values[values.length - 1];
             const first = values[0];
             const max = Math.max(...values);
-            const min = Math.min(...values);
             const avg = values.reduce((a, b) => a + b, 0) / values.length;
-            const totalGrowth = latest - first;
-            const totalGrowthPct = ((latest - first) / first * 100);
+
+            const presStats = getPresidentStats();
+            const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
+            const worstGrowth = presStats.reduce((a, b) => a.growthPct < b.growthPct ? a : b);
 
             const stats = [
                 { label: 'Dette actuelle', value: latest.toFixed(1), unit: 'Md€', highlight: true },
-                { label: 'Progression totale', value: `${totalGrowth >= 0 ? '+' : ''}${totalGrowth.toFixed(1)}`,
-                    unit: 'Md€', sub: `${totalGrowthPct >= 0 ? '+' : ''}${totalGrowthPct.toFixed(1)}%` },
-                { label: 'Record max', value: max.toFixed(1), unit: 'Md€', sub: 'T4 2024' },
-                { label: 'Niveau min', value: min.toFixed(1), unit: 'Md€', sub: 'T4 1995' },
-                { label: 'Moyenne', value: avg.toFixed(1), unit: 'Md€' },
+                { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
+                { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
+                { label: 'Déficit total', value: '4 278', unit: 'Md€', sub: '1995-2026' },
+                { label: 'Recettes totales', value: '197 394', unit: 'Md€', sub: '1995-2026' },
                 { label: 'Trimestres', value: values.length, unit: '' }
             ];
 
@@ -645,231 +664,150 @@
         }
 
         // ------------------------------------------------------------
-        // 5. GRAPHIQUE
+        // 5. GRAPHIQUES
         // ------------------------------------------------------------
-        const ctx = document.getElementById('debtChart').getContext('2d');
         const labels = debtData.map(d => d.date);
-        const values = debtData.map(d => d.value);
+        const debtValues = debtData.map(d => d.value);
+        const deficitValues = debtData.map(d => d.deficit || d.deficits || 0);
+        const revenueValues = debtData.map(d => d.revenues || 0);
 
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(0, 85, 164, 0.25)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(239, 65, 53, 0.05)');
-
-        // Créer les annotations pour les présidents (segments colorés)
-        const presidentColors = {
-            'Charles de Gaulle': '#0b1e3a',
-            'Georges Pompidou': '#0055a4',
-            "Valéry Giscard d'Estaing": '#d1d5db',
-            'François Mitterrand': '#ef4135',
-            'Jacques Chirac': '#0b1e3a',
-            'Nicolas Sarkozy': '#0055a4',
-            'François Hollande': '#d1d5db',
-            'Emmanuel Macron': '#ef4135'
-        };
-
-        // Dataset des présidents pour le graphique
-        const presidentDatasets = [];
-        let currentPresident = '';
-        let currentData = [];
-
-        debtData.forEach((d, idx) => {
-            const pres = getPresidentForDate(d.date);
-            if (pres !== currentPresident && currentData.length > 0) {
-                // Sauvegarder le dataset précédent
-                const color = presidentColors[currentPresident] || '#94a3b8';
-                presidentDatasets.push({
-                    label: currentPresident,
-                    data: currentData,
-                    borderColor: color,
-                    borderWidth: 4,
-                    pointRadius: 0,
-                    fill: false,
-                    tension: 0.3
-                });
-                currentData = [];
-            }
-            currentPresident = pres;
-            currentData.push({ x: d.date, y: d.value });
-        });
-        // Dernier dataset
-        if (currentData.length > 0) {
-            const color = presidentColors[currentPresident] || '#94a3b8';
-            presidentDatasets.push({
-                label: currentPresident,
-                data: currentData,
-                borderColor: color,
-                borderWidth: 4,
-                pointRadius: 0,
-                fill: false,
-                tension: 0.3
-            });
-        }
-
-        let debtChart = new Chart(ctx, {
+        // Dette
+        const ctx1 = document.getElementById('debtChart').getContext('2d');
+        new Chart(ctx1, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Dette brute (Md€)',
-                    data: values,
+                    label: 'Dette (Md€)',
+                    data: debtValues,
                     borderColor: '#0055a4',
-                    backgroundColor: gradient,
+                    backgroundColor: 'rgba(0,85,164,0.05)',
                     borderWidth: 2,
                     pointRadius: 0,
-                    pointHoverRadius: 8,
-                    pointHoverBackgroundColor: '#ef4135',
-                    pointHoverBorderColor: '#0055a4',
-                    pointHoverBorderWidth: 3,
+                    pointHoverRadius: 6,
                     fill: true,
-                    tension: 0.3,
-                    order: 1
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: { size: 10, weight: '600' },
-                            boxWidth: 12,
-                            padding: 8
-                        }
-                    },
+                    legend: { display: false },
                     tooltip: {
-                        backgroundColor: 'rgba(11, 30, 58, 0.92)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#ffffff',
-                        borderColor: '#0055a4',
-                        borderWidth: 2,
-                        padding: 14,
                         callbacks: {
-                            label: function(context) {
-                                const idx = context.dataIndex;
-                                const d = debtData[idx];
-                                const pres = getPresidentForDate(d.date);
-                                let label = `👤 ${pres}`;
-                                label += `\n💰 Dette : ${d.value.toFixed(1)} Md€`;
-                                if (d.pib) label += ` (${d.pib.toFixed(1)} % PIB)`;
-                                if (idx > 0) {
-                                    const prev = debtData[idx - 1].value;
-                                    const diff = d.value - prev;
-                                    label += `\n📊 T/T : ${diff >= 0 ? '+' : ''}${diff.toFixed(1)} Md€`;
-                                }
-                                return label;
-                            },
-                            title: function(items) {
-                                return formatQuarter(items[0].label);
-                            }
+                            label: function(ctx) { return `Dette : ${ctx.parsed.y.toFixed(1)} Md€`; },
+                            title: function(items) { return formatQuarter(items[0].label); }
                         }
-                    },
-                    zoom: {
-                        zoom: {
-                            wheel: { enabled: true, speed: 0.1 },
-                            pinch: { enabled: true },
-                            mode: 'x',
-                        },
-                        pan: { enabled: true, mode: 'x' },
-                        limits: { x: { minRange: 5 } }
                     }
                 },
                 scales: {
-                    x: {
-                        type: 'category',
-                        ticks: {
-                            maxTicksLimit: 30,
-                            callback: function(value, index) {
-                                const date = new Date(this.getLabelForValue(value));
-                                const year = date.getFullYear();
-                                const month = date.getMonth();
-                                const q = month <= 2 ? 'T1' : month <= 5 ? 'T2' : month <= 8 ? 'T3' : 'T4';
-                                if (q === 'T1') return `${year}`;
-                                if (year >= 2015 || index % 2 === 0) return q;
-                                return '';
-                            },
-                            font: { weight: '600' }
-                        },
-                        grid: { display: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.04)' },
-                        ticks: {
-                            callback: function(value) {
-                                if (value >= 1000) return (value / 1000).toFixed(0) + ' kMd€';
-                                return value + ' Md€';
-                            },
-                            font: { weight: '600' }
-                        }
-                    }
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
                 }
             }
         });
 
-        document.querySelectorAll('[data-period]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const period = this.dataset.period;
-                let minIdx = 0,
-                    maxIdx = debtData.length - 1;
-                if (period === '2000') { minIdx = debtData.findIndex(d => d.date ===
-                    '2000-01-01'); } else if (period === '2010') { minIdx = debtData.findIndex(d => d
-                    .date === '2010-01-01'); } else if (period === '2020') { minIdx = debtData.findIndex(d => d
-                    .date === '2020-01-01'); }
-                if (minIdx > 0) {
-                    debtChart.zoomScale('x', { min: minIdx, max: debtData.length - 1 });
-                } else {
-                    debtChart.resetZoom();
+        // Déficit
+        const ctx2 = document.getElementById('deficitChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Déficit (Md€)',
+                    data: deficitValues,
+                    backgroundColor: deficitValues.map(v => v > 0 ? 'rgba(239,65,53,0.7)' : 'rgba(0,85,164,0.5)'),
+                    borderColor: deficitValues.map(v => v > 0 ? '#ef4135' : '#0055a4'),
+                    borderWidth: 1,
+                    borderRadius: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return `Déficit : ${ctx.parsed.y.toFixed(1)} Md€`; },
+                            title: function(items) { return formatQuarter(items[0].label); }
+                        }
+                    }
+                },
+                scales: {
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
                 }
-            });
+            }
         });
 
-        document.getElementById('resetZoom').addEventListener('click', function() {
-            debtChart.resetZoom();
-            document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
-            document.querySelector('[data-period="all"]').classList.add('active');
+        // Recettes
+        const ctx3 = document.getElementById('revenuesChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Recettes (Md€)',
+                    data: revenueValues,
+                    borderColor: '#0055a4',
+                    backgroundColor: 'rgba(0,85,164,0.05)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return `Recettes : ${ctx.parsed.y.toFixed(1)} Md€`; },
+                            title: function(items) { return formatQuarter(items[0].label); }
+                        }
+                    }
+                },
+                scales: {
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
+                }
+            }
         });
 
         // ------------------------------------------------------------
-        // 6. PRÉSIDENTS
+        // 6. PRÉSIDENTS AVEC STATS DÉTAILLÉES
         // ------------------------------------------------------------
         function renderPresidents() {
             const grid = document.getElementById('presidentsGrid');
-            grid.innerHTML = presidents.map(p => {
-                // Trouver la dette au début et à la fin du mandat
-                const startData = debtData.find(d => {
-                    const dDate = new Date(d.date);
-                    const startDate = new Date(p.start);
-                    return dDate >= startDate;
-                });
-                const endData = debtData.filter(d => {
-                    const dDate = new Date(d.date);
-                    const endDate = new Date(p.end);
-                    return dDate <= endDate;
-                });
-                const lastData = endData.length > 0 ? endData[endData.length - 1] : null;
+            const stats = getPresidentStats();
 
-                let startVal = startData ? startData.value : '-';
-                let endVal = lastData ? lastData.value : '-';
-                let change = '-';
-                let changePct = '-';
-                if (startData && lastData && startVal !== '-' && endVal !== '-') {
-                    change = (endVal - startVal).toFixed(1);
-                    changePct = ((endVal - startVal) / startVal * 100).toFixed(1);
-                }
-
+            grid.innerHTML = stats.map(p => {
+                const changeColor = p.growth >= 0 ? '#ef4135' : '#0055a4';
+                const deficitColor = p.avgDeficit > 0 ? '#ef4135' : '#0055a4';
                 return `
                     <div class="president-card">
                         <div class="name">${p.name}</div>
-                        <div class="dates">${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}</div>
+                        <div class="dates">
+                            ${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}
+                            <span style="color:#94a3b8;font-weight:400;"> · ${p.quarters} trim.</span>
+                        </div>
                         <div class="debt-info">
-                            <span class="start">Début : ${typeof startVal === 'number' ? startVal.toFixed(1) + ' Md€' : '-'}</span><br/>
-                            <span class="end">Fin : ${typeof endVal === 'number' ? endVal.toFixed(1) + ' Md€' : '-'}</span><br/>
-                            <span class="change" style="color: ${parseFloat(change) >= 0 ? '#ef4135' : '#0055a4'};">Évolution : ${change !== '-' ? (parseFloat(change) >= 0 ? '+' : '') + change + ' Md€ (' + changePct + '%)' : '-'}</span>
+                            <span class="start">Dette : ${p.startVal.toFixed(1)} → ${p.endVal.toFixed(1)} Md€</span><br/>
+                            <span class="change" style="color:${changeColor};">
+                                Évolution : ${p.growth >= 0 ? '+' : ''}${p.growth.toFixed(1)} Md€ (${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(1)}%)
+                            </span><br/>
+                            <span class="stat">
+                                📊 Déficit moyen : <strong style="color:${deficitColor};">${p.avgDeficit.toFixed(1)} Md€/trim.</strong>
+                                · Recettes : <strong>${p.avgRevenues.toFixed(1)} Md€</strong>
+                            </span><br/>
+                            <span class="stat">
+                                ⚡ Croissance : <strong>${p.avgGrowth >= 0 ? '+' : ''}${p.avgGrowth.toFixed(2)} Md€/trim.</strong>
+                            </span>
                         </div>
                     </div>
                 `;
@@ -886,53 +824,32 @@
             if (search) {
                 filtered = filtered.filter(d => {
                     const q = formatQuarter(d.date);
-                    return q.includes(search) || d.date.includes(search) || getPresidentForDate(d.date).includes(
-                    search);
+                    return q.includes(search) || d.date.includes(search) || getPresidentForDate(d.date).toLowerCase().includes(search.toLowerCase());
                 });
             }
 
             const sorted = [...filtered];
             switch (sort) {
-                case 'date-desc':
-                    sorted.reverse();
-                    break;
-                case 'value-asc':
-                    sorted.sort((a, b) => a.value - b.value);
-                    break;
-                case 'value-desc':
-                    sorted.sort((a, b) => b.value - a.value);
-                    break;
-                case 'change-desc':
-                    sorted.sort((a, b) => {
-                        const aIdx = debtData.indexOf(a);
-                        const bIdx = debtData.indexOf(b);
-                        const aChange = aIdx > 0 ? a.value - debtData[aIdx - 1].value : 0;
-                        const bChange = bIdx > 0 ? b.value - debtData[bIdx - 1].value : 0;
-                        return bChange - aChange;
-                    });
-                    break;
-                default:
-                    break;
+                case 'date-desc': sorted.reverse(); break;
+                case 'debt-asc': sorted.sort((a, b) => a.value - b.value); break;
+                case 'debt-desc': sorted.sort((a, b) => b.value - a.value); break;
+                default: break;
             }
 
             tbody.innerHTML = sorted.map((d) => {
                 const dataIdx = debtData.indexOf(d);
-                const prev = dataIdx > 0 ? debtData[dataIdx - 1] : null;
-                const prevYear = dataIdx >= 4 ? debtData[dataIdx - 4] : null;
-                const change = prev ? d.value - prev.value : 0;
-                const changeYear = prevYear ? d.value - prevYear.value : 0;
-                const changeClass = change >= 0 ? 'up' : 'down';
-                const changeYearClass = changeYear >= 0 ? 'up' : 'down';
-                const highlight = dataIdx === debtData.length - 1 || d.value > 3800;
+                const highlight = dataIdx === debtData.length - 1;
                 const pres = getPresidentForDate(d.date);
+                const deficit = d.deficit || d.deficits || 0;
+                const rev = d.revenues || 0;
 
                 return `
                     <tr class="${highlight ? 'highlight-row' : ''}">
                         <td><strong>${formatQuarter(d.date)}</strong></td>
                         <td>${pres}</td>
-                        <td>${d.value.toFixed(1)} Md€</td>
-                        <td class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)} Md€</td>
-                        <td class="${changeYearClass}">${changeYear >= 0 ? '+' : ''}${changeYear.toFixed(1)} Md€</td>
+                        <td>${d.value.toFixed(1)}</td>
+                        <td class="${deficit > 0 ? 'up' : 'down'}">${deficit >= 0 ? '+' : ''}${deficit.toFixed(1)}</td>
+                        <td>${rev.toFixed(1)}</td>
                         <td>${d.pib ? d.pib.toFixed(1) : '-'} %</td>
                     </tr>
                 `;
@@ -956,8 +873,8 @@
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard avec les 8 présidents de la Ve République');
-        console.log(`📊 ${debtData.length} trimestres (T4 1995 - T1 2026)`);
+        console.log('🇫🇷 Dashboard avec dette, déficit et recettes par président');
+        console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
     </script>
 </body>
 </html>
