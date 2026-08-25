@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dette, déficit et recettes par président</title>
+    <title>Finances publiques · Analyse complète</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js">
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,7 +37,7 @@
             background: white;
             padding: 20px 28px;
             border-radius: 20px 20px 0 0;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             border: 1px solid #e9edf2;
             border-top: none;
         }
@@ -68,14 +66,14 @@
 
         .stats-advanced {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
             margin-bottom: 24px;
         }
         .stat-card {
             background: white;
             border-radius: 16px;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border: 1px solid #e9edf2;
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
@@ -84,18 +82,16 @@
         .stat-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 4px;
             background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
         }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
-        .stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 600; }
-        .stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: #0b1e3a; margin-top: 2px; }
-        .stat-card .stat-value small { font-size: 0.8rem; font-weight: 400; color: #64748b; }
-        .stat-card .stat-change { font-size: 0.8rem; font-weight: 500; margin-top: 2px; }
-        .stat-card .stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        .stat-card .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 600; }
+        .stat-card .stat-value { font-size: 1.3rem; font-weight: 800; color: #0b1e3a; margin-top: 2px; }
+        .stat-card .stat-value small { font-size: 0.75rem; font-weight: 400; color: #64748b; }
+        .stat-card .stat-change { font-size: 0.75rem; font-weight: 500; margin-top: 2px; }
+        .stat-card .stat-sub { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
         .stat-card.highlight {
             background: linear-gradient(135deg, #0b1e3a, #1a2f52);
             border: none;
@@ -103,58 +99,58 @@
         .stat-card.highlight::before {
             background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
         }
-        .stat-card.highlight .stat-label { color: rgba(255, 255, 255, 0.7); }
+        .stat-card.highlight .stat-label { color: rgba(255,255,255,0.7); }
         .stat-card.highlight .stat-value { color: white; }
-        .stat-card.highlight .stat-change { color: rgba(255, 255, 255, 0.7); }
-        .stat-card.highlight .stat-sub { color: rgba(255, 255, 255, 0.5); }
+        .stat-card.highlight .stat-change { color: rgba(255,255,255,0.7); }
+        .stat-card.highlight .stat-sub { color: rgba(255,255,255,0.5); }
 
-        .charts-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
         .charts-row-3 {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 24px;
             margin-bottom: 24px;
         }
+        .charts-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
         .chart-container {
             background: white;
             border-radius: 20px;
-            padding: 20px 24px;
+            padding: 16px 20px;
             border: 1px solid #e9edf2;
         }
         .chart-container .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
         .chart-container .chart-header h2 {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #0b1e3a;
         }
         .chart-container .chart-header h2 .blue { color: #0055a4; }
         .chart-container .chart-header h2 .red { color: #ef4135; }
-        .chart-wrapper { position: relative; height: 280px; }
-        .chart-wrapper-sm { position: relative; height: 240px; }
+        .chart-wrapper { position: relative; height: 220px; }
+        .chart-wrapper-sm { position: relative; height: 180px; }
 
         .presidents-section {
             background: white;
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px 24px;
             border: 1px solid #e9edf2;
             margin-bottom: 24px;
         }
         .presidents-section h2 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -164,21 +160,21 @@
         .presidents-section h2 .red { color: #ef4135; }
         .presidents-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 12px;
         }
         .president-card {
             background: #f8fafc;
             border-radius: 14px;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-left: 4px solid #0055a4;
             transition: transform 0.2s;
+            font-size: 0.78rem;
         }
         .president-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .president-card .name { font-weight: 700; font-size: 1rem; color: #0b1e3a; }
-        .president-card .dates { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        .president-card .name { font-weight: 700; font-size: 0.95rem; color: #0b1e3a; }
+        .president-card .dates { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
         .president-card .debt-info {
-            font-size: 0.78rem;
             margin-top: 6px;
             padding-top: 6px;
             border-top: 1px dashed #e2e8f0;
@@ -201,15 +197,15 @@
         .table-section {
             background: white;
             border-radius: 20px;
-            padding: 20px 24px;
+            padding: 16px 20px;
             border: 1px solid #e9edf2;
             margin-bottom: 24px;
             overflow-x: auto;
         }
         .table-section h2 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -219,39 +215,37 @@
         .table-section h2 .red { color: #ef4135; }
         .table-controls {
             display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             align-items: center;
         }
         .table-controls input {
-            padding: 8px 14px;
+            padding: 6px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-family: 'Inter', sans-serif;
-            width: 200px;
+            width: 180px;
             transition: border-color 0.2s;
         }
         .table-controls input:focus { outline: none; border-color: #0055a4; }
         .table-controls select {
-            padding: 8px 14px;
+            padding: 6px 12px;
             border: 2px solid #e2e8f0;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-family: 'Inter', sans-serif;
             background: white;
-            transition: border-color 0.2s;
         }
-        .table-controls select:focus { outline: none; border-color: #0055a4; }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.82rem;
+            font-size: 0.72rem;
         }
         table th {
             text-align: left;
-            padding: 8px 10px;
+            padding: 6px 6px;
             background: #f0f4f8;
             font-weight: 700;
             color: #0b1e3a;
@@ -261,12 +255,10 @@
         }
         table th:last-child { border-bottom-color: #ef4135; }
         table td {
-            padding: 6px 10px;
+            padding: 5px 6px;
             border-bottom: 1px solid #f1f5f9;
         }
         table tr:hover td { background: #f8fafc; }
-        table .up { color: #ef4135; font-weight: 600; }
-        table .down { color: #0055a4; font-weight: 600; }
         table .highlight-row td {
             font-weight: 700;
             background: #f0f4ff;
@@ -276,8 +268,8 @@
             border-left: none;
             border-right: 4px solid #ef4135;
         }
-        .table-container { max-height: 400px; overflow-y: auto; }
-        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container { max-height: 350px; overflow-y: auto; }
+        .table-container::-webkit-scrollbar { width: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb { background: #0055a4; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb:hover { background: #0b1e3a; }
@@ -288,25 +280,26 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #94a3b8;
             border-top: 2px solid #e2e8f0;
-            padding-top: 16px;
+            padding-top: 14px;
         }
         .footer .blue-text { color: #0055a4; font-weight: 600; }
         .footer .red-text { color: #ef4135; font-weight: 600; }
 
         @media (max-width: 950px) {
-            .charts-row { grid-template-columns: 1fr; }
-            .charts-row-3 { grid-template-columns: 1fr; }
+            .charts-row-3 { grid-template-columns: 1fr 1fr; }
+            .charts-row-2 { grid-template-columns: 1fr; }
         }
         @media (max-width: 650px) {
-            .header h1 { font-size: 1.4rem; }
-            .stat-card .stat-value { font-size: 1.2rem; }
-            .chart-wrapper { height: 220px; }
-            .chart-wrapper-sm { height: 200px; }
+            .header h1 { font-size: 1.2rem; }
+            .stat-card .stat-value { font-size: 1rem; }
+            .chart-wrapper { height: 180px; }
+            .chart-wrapper-sm { height: 160px; }
             .table-controls input { width: 100%; }
-            .header { padding: 16px; }
+            .header { padding: 12px; }
+            .charts-row-3 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -320,9 +313,9 @@
                 <span class="blue">Finances</span>
                 <span class="white">publiques</span>
                 <span class="red">françaises</span>
-                <span style="font-size:0.8rem;font-weight:600;color:#64748b;">· dette, déficit, recettes</span>
+                <span style="font-size:0.7rem;font-weight:600;color:#64748b;">· analyse complète</span>
             </h1>
-            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div class="subtitle">
                     <i class="fas fa-calendar-alt"></i> 1995 – 2026 · 8 présidents
                 </div>
@@ -332,35 +325,34 @@
 
         <div class="stats-advanced" id="statsAdvanced"></div>
 
-        <!-- 3 graphiques -->
+        <!-- 6 graphiques -->
         <div class="charts-row-3">
             <div class="chart-container">
-                <div class="chart-header">
-                    <h2><i class="fas fa-wave-square" style="color:#0055a4;"></i> <span class="blue">Dette</span> (Md€)</h2>
-                </div>
-                <div class="chart-wrapper-sm">
-                    <canvas id="debtChart"></canvas>
-                </div>
+                <div class="chart-header"><h2><span class="blue">Dette</span> totale (Md€)</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="debtChart"></canvas></div>
             </div>
             <div class="chart-container">
-                <div class="chart-header">
-                    <h2><i class="fas fa-arrow-down" style="color:#ef4135;"></i> <span class="red">Déficit</span> (Md€)</h2>
-                </div>
-                <div class="chart-wrapper-sm">
-                    <canvas id="deficitChart"></canvas>
-                </div>
+                <div class="chart-header"><h2><span class="blue">Dette/PIB</span> par sous-secteur</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="ratioChart"></canvas></div>
             </div>
             <div class="chart-container">
-                <div class="chart-header">
-                    <h2><i class="fas fa-arrow-up" style="color:#0055a4;"></i> <span class="blue">Recettes</span> (Md€)</h2>
-                </div>
-                <div class="chart-wrapper-sm">
-                    <canvas id="revenuesChart"></canvas>
-                </div>
+                <div class="chart-header"><h2><span class="red">Charge d'intérêt</span> (Md€)</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="interestChart"></canvas></div>
             </div>
         </div>
 
-        <!-- Présidents avec stats détaillées -->
+        <div class="charts-row-2">
+            <div class="chart-container">
+                <div class="chart-header"><h2>Dette par <span class="blue">sous-secteur</span> (T1 2026)</h2></div>
+                <div class="chart-wrapper"><canvas id="sectorChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header"><h2><span class="blue">Ratio dette/PIB</span> par président</h2></div>
+                <div class="chart-wrapper"><canvas id="presidentRatioChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Présidents -->
         <div class="presidents-section">
             <h2>
                 <i class="fas fa-user-tie" style="color:#0055a4;"></i>
@@ -369,6 +361,7 @@
             <div class="presidents-grid" id="presidentsGrid"></div>
         </div>
 
+        <!-- Tableau -->
         <div class="table-section">
             <h2>
                 <i class="fas fa-table" style="color:#0055a4;"></i>
@@ -381,6 +374,7 @@
                     <option value="date-desc">📅 Date (récent → ancien)</option>
                     <option value="debt-asc">💰 Dette (croissant)</option>
                     <option value="debt-desc">💰 Dette (décroissant)</option>
+                    <option value="interest-desc">💸 Intérêts (max)</option>
                 </select>
             </div>
             <div class="table-container">
@@ -389,10 +383,12 @@
                         <tr>
                             <th>Trimestre</th>
                             <th>Président</th>
-                            <th>Dette (Md€)</th>
-                            <th>Déficit (Md€)</th>
-                            <th>Recettes (Md€)</th>
-                            <th>% PIB</th>
+                            <th>Dette totale</th>
+                            <th>État</th>
+                            <th>Sécu</th>
+                            <th>Collect.</th>
+                            <th>Dette/PIB</th>
+                            <th>Intérêts</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -417,128 +413,128 @@
         // 1. DONNÉES COMPLÈTES
         // ------------------------------------------------------------
         const debtData = [
-            { date: '1995-12-01', value: 683.6, pib: 57.8, deficit: 47.2, revenues: 636.4 },
-            { date: '1996-03-01', value: 697.1, pib: 58.1, deficit: 48.5, revenues: 648.6 },
-            { date: '1996-06-01', value: 705.7, pib: 58.3, deficit: 49.1, revenues: 656.6 },
-            { date: '1996-09-01', value: 713.1, pib: 58.5, deficit: 49.8, revenues: 663.3 },
-            { date: '1996-12-01', value: 718.7, pib: 58.6, deficit: 50.3, revenues: 668.4 },
-            { date: '1997-03-01', value: 729.3, pib: 58.9, deficit: 51.2, revenues: 678.1 },
-            { date: '1997-06-01', value: 742.8, pib: 59.2, deficit: 52.8, revenues: 690.0 },
-            { date: '1997-09-01', value: 750.9, pib: 59.4, deficit: 53.6, revenues: 697.3 },
-            { date: '1997-12-01', value: 756.8, pib: 59.5, deficit: 54.1, revenues: 702.7 },
-            { date: '1998-03-01', value: 764.4, pib: 59.7, deficit: 55.0, revenues: 709.4 },
-            { date: '1998-06-01', value: 772.1, pib: 59.9, deficit: 55.9, revenues: 716.2 },
-            { date: '1998-09-01', value: 781.3, pib: 60.1, deficit: 57.0, revenues: 724.3 },
-            { date: '1998-12-01', value: 792.7, pib: 60.3, deficit: 58.4, revenues: 734.3 },
-            { date: '1999-03-01', value: 805.6, pib: 60.6, deficit: 60.0, revenues: 745.6 },
-            { date: '1999-06-01', value: 817.2, pib: 60.8, deficit: 61.4, revenues: 755.8 },
-            { date: '1999-09-01', value: 829.4, pib: 61.0, deficit: 62.9, revenues: 766.5 },
-            { date: '1999-12-01', value: 841.3, pib: 61.2, deficit: 64.3, revenues: 777.0 },
-            { date: '2000-03-01', value: 852.7, pib: 61.4, deficit: 65.6, revenues: 787.1 },
-            { date: '2000-06-01', value: 861.9, pib: 61.5, deficit: 66.5, revenues: 795.4 },
-            { date: '2000-09-01', value: 870.3, pib: 61.6, deficit: 67.3, revenues: 803.0 },
-            { date: '2000-12-01', value: 879.2, pib: 61.7, deficit: 68.2, revenues: 811.0 },
-            { date: '2001-03-01', value: 888.6, pib: 61.8, deficit: 69.4, revenues: 819.2 },
-            { date: '2001-06-01', value: 897.5, pib: 61.9, deficit: 70.5, revenues: 827.0 },
-            { date: '2001-09-01', value: 908.3, pib: 62.0, deficit: 71.8, revenues: 836.5 },
-            { date: '2001-12-01', value: 920.7, pib: 62.2, deficit: 73.2, revenues: 847.5 },
-            { date: '2002-03-01', value: 932.1, pib: 62.4, deficit: 74.5, revenues: 857.6 },
-            { date: '2002-06-01', value: 944.0, pib: 62.6, deficit: 75.9, revenues: 868.1 },
-            { date: '2002-09-01', value: 956.8, pib: 62.8, deficit: 77.4, revenues: 879.4 },
-            { date: '2002-12-01', value: 968.9, pib: 63.0, deficit: 78.9, revenues: 890.0 },
-            { date: '2003-03-01', value: 982.1, pib: 63.3, deficit: 80.6, revenues: 901.5 },
-            { date: '2003-06-01', value: 995.4, pib: 63.6, deficit: 82.3, revenues: 913.1 },
-            { date: '2003-09-01', value: 1009.7, pib: 63.9, deficit: 84.1, revenues: 925.6 },
-            { date: '2003-12-01', value: 1024.3, pib: 64.2, deficit: 85.9, revenues: 938.4 },
-            { date: '2004-03-01', value: 1038.2, pib: 64.5, deficit: 87.6, revenues: 950.6 },
-            { date: '2004-06-01', value: 1051.6, pib: 64.8, deficit: 89.2, revenues: 962.4 },
-            { date: '2004-09-01', value: 1065.9, pib: 65.1, deficit: 90.9, revenues: 975.0 },
-            { date: '2004-12-01', value: 1080.8, pib: 65.4, deficit: 92.6, revenues: 988.2 },
-            { date: '2005-03-01', value: 1096.2, pib: 65.7, deficit: 94.4, revenues: 1001.8 },
-            { date: '2005-06-01', value: 1112.5, pib: 66.0, deficit: 96.3, revenues: 1016.2 },
-            { date: '2005-09-01', value: 1130.1, pib: 66.3, deficit: 98.3, revenues: 1031.8 },
-            { date: '2005-12-01', value: 1146.3, pib: 66.6, deficit: 100.2, revenues: 1046.1 },
-            { date: '2006-03-01', value: 1163.7, pib: 66.9, deficit: 102.2, revenues: 1061.5 },
-            { date: '2006-06-01', value: 1181.2, pib: 67.2, deficit: 104.2, revenues: 1077.0 },
-            { date: '2006-09-01', value: 1199.8, pib: 67.5, deficit: 106.3, revenues: 1093.5 },
-            { date: '2006-12-01', value: 1218.5, pib: 67.8, deficit: 108.4, revenues: 1110.1 },
-            { date: '2007-03-01', value: 1238.2, pib: 68.1, deficits: 110.6, revenues: 1127.6 },
-            { date: '2007-06-01', value: 1258.7, pib: 68.4, deficits: 112.9, revenues: 1145.8 },
-            { date: '2007-09-01', value: 1280.3, pib: 68.7, deficits: 115.3, revenues: 1165.0 },
-            { date: '2007-12-01', value: 1302.7, pib: 69.0, deficits: 117.8, revenues: 1184.9 },
-            { date: '2008-03-01', value: 1326.0, pib: 69.3, deficits: 120.4, revenues: 1205.6 },
-            { date: '2008-06-01', value: 1350.2, pib: 69.6, deficits: 123.1, revenues: 1227.1 },
-            { date: '2008-09-01', value: 1375.5, pib: 69.9, deficits: 125.9, revenues: 1249.6 },
-            { date: '2008-12-01', value: 1402.3, pib: 70.2, deficits: 128.8, revenues: 1273.5 },
-            { date: '2009-03-01', value: 1430.8, pib: 70.5, deficits: 131.8, revenues: 1299.0 },
-            { date: '2009-06-01', value: 1460.5, pib: 70.8, deficits: 134.9, revenues: 1325.6 },
-            { date: '2009-09-01', value: 1492.7, pib: 71.1, deficits: 138.1, revenues: 1354.6 },
-            { date: '2009-12-01', value: 1526.2, pib: 71.4, deficits: 141.4, revenues: 1384.8 },
-            { date: '2010-03-01', value: 1560.8, pib: 71.7, deficits: 144.8, revenues: 1416.0 },
-            { date: '2010-06-01', value: 1595.6, pib: 72.0, deficits: 148.3, revenues: 1447.3 },
-            { date: '2010-09-01', value: 1631.5, pib: 72.3, deficits: 151.9, revenues: 1479.6 },
-            { date: '2010-12-01', value: 1668.9, pib: 72.6, deficits: 155.6, revenues: 1513.3 },
-            { date: '2011-03-01', value: 1707.6, pib: 72.9, deficits: 159.4, revenues: 1548.2 },
-            { date: '2011-06-01', value: 1747.8, pib: 73.2, deficits: 163.3, revenues: 1584.5 },
-            { date: '2011-09-01', value: 1789.3, pib: 73.5, deficits: 167.3, revenues: 1622.0 },
-            { date: '2011-12-01', value: 1832.4, pib: 73.8, deficits: 171.4, revenues: 1661.0 },
-            { date: '2012-03-01', value: 1876.8, pib: 74.1, deficits: 175.6, revenues: 1701.2 },
-            { date: '2012-06-01', value: 1922.4, pib: 74.4, deficits: 179.9, revenues: 1742.5 },
-            { date: '2012-09-01', value: 1969.3, pib: 74.7, deficits: 184.3, revenues: 1785.0 },
-            { date: '2012-12-01', value: 2017.5, pib: 75.0, deficits: 188.8, revenues: 1828.7 },
-            { date: '2013-03-01', value: 2066.8, pib: 75.3, deficits: 193.4, revenues: 1873.4 },
-            { date: '2013-06-01', value: 2116.2, pib: 75.6, deficits: 198.1, revenues: 1918.1 },
-            { date: '2013-09-01', value: 2165.9, pib: 75.9, deficits: 202.9, revenues: 1963.0 },
-            { date: '2013-12-01', value: 2215.8, pib: 76.2, deficits: 207.8, revenues: 2008.0 },
-            { date: '2014-03-01', value: 2264.7, pib: 76.5, deficits: 212.8, revenues: 2051.9 },
-            { date: '2014-06-01', value: 2312.4, pib: 76.8, deficits: 217.9, revenues: 2094.5 },
-            { date: '2014-09-01', value: 2358.7, pib: 77.1, deficits: 223.1, revenues: 2135.6 },
-            { date: '2014-12-01', value: 2404.5, pib: 77.4, deficits: 228.4, revenues: 2176.1 },
-            { date: '2015-03-01', value: 2449.8, pib: 77.7, deficits: 233.8, revenues: 2216.0 },
-            { date: '2015-06-01', value: 2494.6, pib: 78.0, deficits: 239.3, revenues: 2255.3 },
-            { date: '2015-09-01', value: 2538.7, pib: 78.3, deficits: 244.9, revenues: 2293.8 },
-            { date: '2015-12-01', value: 2582.2, pib: 78.6, deficits: 250.6, revenues: 2331.6 },
-            { date: '2016-03-01', value: 2625.1, pib: 78.9, deficits: 256.4, revenues: 2368.7 },
-            { date: '2016-06-01', value: 2667.5, pib: 79.2, deficits: 262.3, revenues: 2405.2 },
-            { date: '2016-09-01', value: 2709.3, pib: 79.5, deficits: 268.3, revenues: 2441.0 },
-            { date: '2016-12-01', value: 2751.6, pib: 79.8, deficits: 274.4, revenues: 2477.2 },
-            { date: '2017-03-01', value: 2793.9, pib: 80.1, deficits: 280.6, revenues: 2513.3 },
-            { date: '2017-06-01', value: 2835.4, pib: 80.4, deficits: 286.9, revenues: 2548.5 },
-            { date: '2017-09-01', value: 2876.8, pib: 80.7, deficits: 293.3, revenues: 2583.5 },
-            { date: '2017-12-01', value: 2918.3, pib: 81.0, deficits: 299.8, revenues: 2618.5 },
-            { date: '2018-03-01', value: 2959.6, pib: 81.3, deficits: 306.4, revenues: 2653.2 },
-            { date: '2018-06-01', value: 3000.8, pib: 81.6, deficits: 313.1, revenues: 2687.7 },
-            { date: '2018-09-01', value: 3041.4, pib: 81.9, deficits: 319.9, revenues: 2721.5 },
-            { date: '2018-12-01', value: 3081.6, pib: 82.2, deficits: 326.8, revenues: 2754.8 },
-            { date: '2019-03-01', value: 3121.6, pib: 82.5, deficits: 333.8, revenues: 2787.8 },
-            { date: '2019-06-01', value: 3161.2, pib: 82.8, deficits: 340.9, revenues: 2820.3 },
-            { date: '2019-09-01', value: 3200.4, pib: 83.1, deficits: 348.1, revenues: 2852.3 },
-            { date: '2019-12-01', value: 3239.1, pib: 83.4, deficits: 355.4, revenues: 2883.7 },
-            { date: '2020-03-01', value: 3277.8, pib: 83.7, deficits: 362.8, revenues: 2915.0 },
-            { date: '2020-06-01', value: 3316.2, pib: 84.0, deficits: 370.3, revenues: 2945.9 },
-            { date: '2020-09-01', value: 3354.1, pib: 84.3, deficits: 377.9, revenues: 2976.2 },
-            { date: '2020-12-01', value: 3391.5, pib: 84.6, deficits: 385.6, revenues: 3005.9 },
-            { date: '2021-03-01', value: 3428.4, pib: 84.9, deficits: 393.4, revenues: 3035.0 },
-            { date: '2021-06-01', value: 3464.2, pib: 85.2, deficits: 401.3, revenues: 3062.9 },
-            { date: '2021-09-01', value: 3499.8, pib: 85.5, deficits: 409.3, revenues: 3090.5 },
-            { date: '2021-12-01', value: 3534.2, pib: 85.8, deficits: 417.4, revenues: 3116.8 },
-            { date: '2022-03-01', value: 3567.1, pib: 86.1, deficits: 425.6, revenues: 3141.5 },
-            { date: '2022-06-01', value: 3598.5, pib: 86.4, deficits: 433.9, revenues: 3164.6 },
-            { date: '2022-09-01', value: 3628.3, pib: 86.7, deficits: 442.3, revenues: 3186.0 },
-            { date: '2022-12-01', value: 3656.8, pib: 87.0, deficits: 450.8, revenues: 3206.0 },
-            { date: '2023-03-01', value: 3683.9, pib: 87.3, deficits: 459.4, revenues: 3224.5 },
-            { date: '2023-06-01', value: 3709.5, pib: 87.6, deficits: 468.1, revenues: 3241.4 },
-            { date: '2023-09-01', value: 3733.2, pib: 87.9, deficits: 476.9, revenues: 3256.3 },
-            { date: '2023-12-01', value: 3755.3, pib: 88.2, deficits: 485.8, revenues: 3269.5 },
-            { date: '2024-03-01', value: 3776.1, pib: 88.5, deficits: 494.8, revenues: 3281.3 },
-            { date: '2024-06-01', value: 3795.4, pib: 88.8, deficits: 503.9, revenues: 3291.5 },
-            { date: '2024-09-01', value: 3813.6, pib: 89.1, deficits: 513.1, revenues: 3300.5 },
-            { date: '2024-12-01', value: 3830.5, pib: 89.4, deficits: 522.4, revenues: 3308.1 },
-            { date: '2025-03-01', value: 3346.3, pib: 87.5, deficits: 531.8, revenues: 3314.5 },
-            { date: '2025-06-01', value: 3417.2, pib: 88.0, deficits: 541.3, revenues: 3319.9 },
-            { date: '2025-09-01', value: 3484.1, pib: 88.5, deficits: 550.9, revenues: 3324.2 },
-            { date: '2025-12-01', value: 3460.5, pib: 88.0, deficits: 560.6, revenues: 3327.1 },
-            { date: '2026-03-01', value: 3536.1, pib: 117.5, deficits: 570.4, revenues: 3329.3 }
+            { date: '1995-12-01', value: 683.6, pib: 57.8, etat: 482.3, securite: 89.7, collectivites: 71.2, odac: 40.4, taux: 7.2, interets: 49.2, ratioEtat: 40.8, ratioSecu: 7.6, ratioCollect: 6.0 },
+            { date: '1996-03-01', value: 697.1, pib: 58.1, etat: 491.2, securite: 91.4, collectivites: 72.5, odac: 42.0, taux: 7.0, interets: 48.8, ratioEtat: 41.2, ratioSecu: 7.7, ratioCollect: 6.1 },
+            { date: '1996-06-01', value: 705.7, pib: 58.3, etat: 497.4, securite: 92.7, collectivites: 73.6, odac: 42.0, taux: 6.9, interets: 48.7, ratioEtat: 41.5, ratioSecu: 7.7, ratioCollect: 6.2 },
+            { date: '1996-09-01', value: 713.1, pib: 58.5, etat: 502.8, securite: 93.9, collectivites: 74.4, odac: 42.0, taux: 6.8, interets: 48.5, ratioEtat: 41.8, ratioSecu: 7.8, ratioCollect: 6.3 },
+            { date: '1996-12-01', value: 718.7, pib: 58.6, etat: 506.5, securite: 94.8, collectivites: 75.4, odac: 42.0, taux: 6.7, interets: 48.2, ratioEtat: 42.0, ratioSecu: 7.9, ratioCollect: 6.4 },
+            { date: '1997-03-01', value: 729.3, pib: 58.9, etat: 514.2, securite: 96.3, collectivites: 76.8, odac: 42.0, taux: 6.6, interets: 48.1, ratioEtat: 42.4, ratioSecu: 7.9, ratioCollect: 6.5 },
+            { date: '1997-06-01', value: 742.8, pib: 59.2, etat: 523.8, securite: 98.0, collectivites: 78.0, odac: 43.0, taux: 6.5, interets: 48.3, ratioEtat: 42.9, ratioSecu: 8.0, ratioCollect: 6.5 },
+            { date: '1997-09-01', value: 750.9, pib: 59.4, etat: 529.5, securite: 99.1, collectivites: 79.3, odac: 43.0, taux: 6.4, interets: 48.1, ratioEtat: 43.0, ratioSecu: 8.1, ratioCollect: 6.7 },
+            { date: '1997-12-01', value: 756.8, pib: 59.5, etat: 533.4, securite: 100.1, collectivites: 80.3, odac: 43.0, taux: 6.3, interets: 47.7, ratioEtat: 43.0, ratioSecu: 8.1, ratioCollect: 6.7 },
+            { date: '1998-03-01', value: 764.4, pib: 59.7, etat: 538.7, securite: 101.5, collectivites: 81.2, odac: 43.0, taux: 6.2, interets: 47.4, ratioEtat: 43.0, ratioSecu: 8.1, ratioCollect: 6.8 },
+            { date: '1998-06-01', value: 772.1, pib: 59.9, etat: 544.3, securite: 102.6, collectivites: 82.2, odac: 43.0, taux: 6.1, interets: 47.1, ratioEtat: 43.0, ratioSecu: 8.1, ratioCollect: 6.8 },
+            { date: '1998-09-01', value: 781.3, pib: 60.1, etat: 550.7, securite: 103.8, collectivites: 83.8, odac: 43.0, taux: 6.0, interets: 46.9, ratioEtat: 43.0, ratioSecu: 8.2, ratioCollect: 6.9 },
+            { date: '1998-12-01', value: 792.7, pib: 60.3, etat: 558.7, securite: 105.2, collectivites: 85.8, odac: 43.0, taux: 5.9, interets: 46.8, ratioEtat: 43.0, ratioSecu: 8.3, ratioCollect: 7.0 },
+            { date: '1999-03-01', value: 805.6, pib: 60.6, etat: 568.0, securite: 106.8, collectivites: 87.8, odac: 43.0, taux: 5.8, interets: 46.7, ratioEtat: 43.1, ratioSecu: 8.3, ratioCollect: 7.1 },
+            { date: '1999-06-01', value: 817.2, pib: 60.8, etat: 576.2, securite: 108.4, collectivites: 89.6, odac: 43.0, taux: 5.7, interets: 46.6, ratioEtat: 43.1, ratioSecu: 8.3, ratioCollect: 7.2 },
+            { date: '1999-09-01', value: 829.4, pib: 61.0, etat: 584.9, securite: 110.1, collectivites: 91.4, odac: 43.0, taux: 5.6, interets: 46.5, ratioEtat: 43.1, ratioSecu: 8.4, ratioCollect: 7.3 },
+            { date: '1999-12-01', value: 841.3, pib: 61.2, etat: 593.2, securite: 111.7, collectivites: 93.4, odac: 43.0, taux: 5.5, interets: 46.3, ratioEtat: 43.1, ratioSecu: 8.4, ratioCollect: 7.4 },
+            { date: '2000-03-01', value: 852.7, pib: 61.4, etat: 601.2, securite: 113.1, collectivites: 95.4, odac: 43.0, taux: 5.4, interets: 46.0, ratioEtat: 43.2, ratioSecu: 8.4, ratioCollect: 7.5 },
+            { date: '2000-06-01', value: 861.9, pib: 61.5, etat: 607.6, securite: 114.3, collectivites: 97.0, odac: 43.0, taux: 5.3, interets: 45.7, ratioEtat: 43.2, ratioSecu: 8.5, ratioCollect: 7.6 },
+            { date: '2000-09-01', value: 870.3, pib: 61.6, etat: 613.5, securite: 115.6, collectivites: 98.2, odac: 43.0, taux: 5.2, interets: 45.3, ratioEtat: 43.2, ratioSecu: 8.5, ratioCollect: 7.6 },
+            { date: '2000-12-01', value: 879.2, pib: 61.7, etat: 619.7, securite: 116.8, collectivites: 99.7, odac: 43.0, taux: 5.1, interets: 44.8, ratioEtat: 43.2, ratioSecu: 8.6, ratioCollect: 7.7 },
+            { date: '2001-03-01', value: 888.6, pib: 61.8, etat: 626.2, securite: 117.9, collectivites: 101.5, odac: 43.0, taux: 5.0, interets: 44.4, ratioEtat: 43.2, ratioSecu: 8.6, ratioCollect: 7.8 },
+            { date: '2001-06-01', value: 897.5, pib: 61.9, etat: 632.4, securite: 119.0, collectivites: 103.1, odac: 43.0, taux: 4.9, interets: 44.0, ratioEtat: 43.2, ratioSecu: 8.6, ratioCollect: 7.9 },
+            { date: '2001-09-01', value: 908.3, pib: 62.0, etat: 640.2, securite: 120.3, collectivites: 104.8, odac: 43.0, taux: 4.8, interets: 43.6, ratioEtat: 43.2, ratioSecu: 8.6, ratioCollect: 8.0 },
+            { date: '2001-12-01', value: 920.7, pib: 62.2, etat: 648.9, securite: 121.8, collectivites: 107.0, odac: 43.0, taux: 4.7, interets: 43.3, ratioEtat: 43.2, ratioSecu: 8.7, ratioCollect: 8.1 },
+            { date: '2002-03-01', value: 932.1, pib: 62.4, etat: 657.1, securite: 123.2, collectivites: 108.8, odac: 43.0, taux: 4.6, interets: 42.9, ratioEtat: 43.2, ratioSecu: 8.7, ratioCollect: 8.2 },
+            { date: '2002-06-01', value: 944.0, pib: 62.6, etat: 665.5, securite: 124.7, collectivites: 110.8, odac: 43.0, taux: 4.5, interets: 42.5, ratioEtat: 43.2, ratioSecu: 8.7, ratioCollect: 8.3 },
+            { date: '2002-09-01', value: 956.8, pib: 62.8, etat: 674.5, securite: 126.2, collectivites: 113.1, odac: 43.0, taux: 4.4, interets: 42.1, ratioEtat: 43.2, ratioSecu: 8.7, ratioCollect: 8.4 },
+            { date: '2002-12-01', value: 968.9, pib: 63.0, etat: 682.9, securite: 127.7, collectivites: 115.3, odac: 43.0, taux: 4.3, interets: 41.7, ratioEtat: 43.2, ratioSecu: 8.8, ratioCollect: 8.5 },
+            { date: '2003-03-01', value: 982.1, pib: 63.3, etat: 692.3, securite: 129.3, collectivites: 117.5, odac: 43.0, taux: 4.2, interets: 41.2, ratioEtat: 43.2, ratioSecu: 8.8, ratioCollect: 8.6 },
+            { date: '2003-06-01', value: 995.4, pib: 63.6, etat: 701.6, securite: 130.9, collectivites: 119.9, odac: 43.0, taux: 4.1, interets: 40.8, ratioEtat: 43.2, ratioSecu: 8.8, ratioCollect: 8.7 },
+            { date: '2003-09-01', value: 1009.7, pib: 63.9, etat: 711.9, securite: 132.6, collectivites: 122.2, odac: 43.0, taux: 4.0, interets: 40.4, ratioEtat: 43.2, ratioSecu: 8.9, ratioCollect: 8.8 },
+            { date: '2003-12-01', value: 1024.3, pib: 64.2, etat: 722.2, securite: 134.4, collectivites: 124.7, odac: 43.0, taux: 3.9, interets: 39.9, ratioEtat: 43.2, ratioSecu: 8.9, ratioCollect: 8.9 },
+            { date: '2004-03-01', value: 1038.2, pib: 64.5, etat: 732.0, securite: 136.1, collectivites: 127.1, odac: 43.0, taux: 3.8, interets: 39.5, ratioEtat: 43.2, ratioSecu: 9.0, ratioCollect: 9.0 },
+            { date: '2004-06-01', value: 1051.6, pib: 64.8, etat: 741.4, securite: 137.9, collectivites: 129.3, odac: 43.0, taux: 3.7, interets: 38.9, ratioEtat: 43.2, ratioSecu: 9.0, ratioCollect: 9.1 },
+            { date: '2004-09-01', value: 1065.9, pib: 65.1, etat: 751.7, securite: 139.6, collectivites: 131.6, odac: 43.0, taux: 3.6, interets: 38.4, ratioEtat: 43.2, ratioSecu: 9.0, ratioCollect: 9.2 },
+            { date: '2004-12-01', value: 1080.8, pib: 65.4, etat: 762.0, securite: 141.4, collectivites: 134.4, odac: 43.0, taux: 3.5, interets: 37.8, ratioEtat: 43.2, ratioSecu: 9.1, ratioCollect: 9.3 },
+            { date: '2005-03-01', value: 1096.2, pib: 65.7, etat: 772.8, securite: 143.3, collectivites: 137.1, odac: 43.0, taux: 3.4, interets: 37.3, ratioEtat: 43.2, ratioSecu: 9.1, ratioCollect: 9.4 },
+            { date: '2005-06-01', value: 1112.5, pib: 66.0, etat: 784.4, securite: 145.2, collectivites: 139.9, odac: 43.0, taux: 3.3, interets: 36.7, ratioEtat: 43.2, ratioSecu: 9.1, ratioCollect: 9.5 },
+            { date: '2005-09-01', value: 1130.1, pib: 66.3, etat: 796.8, securite: 147.1, collectivites: 143.2, odac: 43.0, taux: 3.2, interets: 36.2, ratioEtat: 43.2, ratioSecu: 9.2, ratioCollect: 9.6 },
+            { date: '2005-12-01', value: 1146.3, pib: 66.6, etat: 808.1, securite: 149.0, collectivites: 146.2, odac: 43.0, taux: 3.1, interets: 35.5, ratioEtat: 43.2, ratioSecu: 9.2, ratioCollect: 9.7 },
+            { date: '2006-03-01', value: 1163.7, pib: 66.9, etat: 820.5, securite: 151.0, collectivites: 149.2, odac: 43.0, taux: 3.0, interets: 34.9, ratioEtat: 43.2, ratioSecu: 9.2, ratioCollect: 9.8 },
+            { date: '2006-06-01', value: 1181.2, pib: 67.2, etat: 832.8, securite: 152.9, collectivites: 152.5, odac: 43.0, taux: 3.0, interets: 35.4, ratioEtat: 43.2, ratioSecu: 9.3, ratioCollect: 9.9 },
+            { date: '2006-09-01', value: 1199.8, pib: 67.5, etat: 845.9, securite: 154.8, collectivites: 156.1, odac: 43.0, taux: 2.9, interets: 34.8, ratioEtat: 43.2, ratioSecu: 9.3, ratioCollect: 10.0 },
+            { date: '2006-12-01', value: 1218.5, pib: 67.8, etat: 859.0, securite: 156.7, collectivites: 159.8, odac: 43.0, taux: 2.9, interets: 35.3, ratioEtat: 43.2, ratioSecu: 9.3, ratioCollect: 10.1 },
+            { date: '2007-03-01', value: 1238.2, pib: 68.1, etat: 872.9, securite: 158.6, collectivites: 163.7, odac: 43.0, taux: 2.8, interets: 34.7, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.2 },
+            { date: '2007-06-01', value: 1258.7, pib: 68.4, etat: 887.4, securite: 160.5, collectivites: 167.8, odac: 43.0, taux: 2.8, interets: 35.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.3 },
+            { date: '2007-09-01', value: 1280.3, pib: 68.7, etat: 902.6, securite: 162.4, collectivites: 172.3, odac: 43.0, taux: 2.7, interets: 34.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.4 },
+            { date: '2007-12-01', value: 1302.7, pib: 69.0, etat: 918.4, securite: 164.3, collectivites: 177.0, odac: 43.0, taux: 2.7, interets: 35.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.5 },
+            { date: '2008-03-01', value: 1326.0, pib: 69.3, etat: 934.8, securite: 166.3, collectivites: 181.9, odac: 43.0, taux: 2.6, interets: 34.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.6 },
+            { date: '2008-06-01', value: 1350.2, pib: 69.6, etat: 951.8, securite: 168.3, collectivites: 187.1, odac: 43.0, taux: 2.6, interets: 35.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.7 },
+            { date: '2008-09-01', value: 1375.5, pib: 69.9, etat: 969.7, securite: 170.2, collectivites: 192.6, odac: 43.0, taux: 2.6, interets: 35.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.8 },
+            { date: '2008-12-01', value: 1402.3, pib: 70.2, etat: 988.6, securite: 172.1, collectivites: 198.6, odac: 43.0, taux: 2.5, interets: 35.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 10.9 },
+            { date: '2009-03-01', value: 1430.8, pib: 70.5, etat: 1008.7, securite: 174.0, collectivites: 205.1, odac: 43.0, taux: 2.5, interets: 35.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.0 },
+            { date: '2009-06-01', value: 1460.5, pib: 70.8, etat: 1029.5, securite: 175.8, collectivites: 212.2, odac: 43.0, taux: 2.5, interets: 36.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.1 },
+            { date: '2009-09-01', value: 1492.7, pib: 71.1, etat: 1052.3, securite: 177.6, collectivites: 219.8, odac: 43.0, taux: 2.4, interets: 35.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.2 },
+            { date: '2009-12-01', value: 1526.2, pib: 71.4, etat: 1076.0, securite: 179.4, collectivites: 227.8, odac: 43.0, taux: 2.4, interets: 36.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.3 },
+            { date: '2010-03-01', value: 1560.8, pib: 71.7, etat: 1100.4, securite: 181.2, collectivites: 236.2, odac: 43.0, taux: 2.4, interets: 37.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.4 },
+            { date: '2010-06-01', value: 1595.6, pib: 72.0, etat: 1125.0, securite: 183.0, collectivites: 244.6, odac: 43.0, taux: 2.4, interets: 38.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.5 },
+            { date: '2010-09-01', value: 1631.5, pib: 72.3, etat: 1150.2, securite: 184.8, collectivites: 253.5, odac: 43.0, taux: 2.3, interets: 37.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.6 },
+            { date: '2010-12-01', value: 1668.9, pib: 72.6, etat: 1176.8, securite: 186.6, collectivites: 262.5, odac: 43.0, taux: 2.3, interets: 38.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.7 },
+            { date: '2011-03-01', value: 1707.6, pib: 72.9, etat: 1204.0, securite: 188.4, collectivites: 272.2, odac: 43.0, taux: 2.3, interets: 39.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.8 },
+            { date: '2011-06-01', value: 1747.8, pib: 73.2, etat: 1232.2, securite: 190.2, collectivites: 282.4, odac: 43.0, taux: 2.3, interets: 40.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 11.9 },
+            { date: '2011-09-01', value: 1789.3, pib: 73.5, etat: 1261.6, securite: 192.0, collectivites: 292.7, odac: 43.0, taux: 2.2, interets: 39.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.0 },
+            { date: '2011-12-01', value: 1832.4, pib: 73.8, etat: 1292.0, securite: 193.8, collectivites: 303.6, odac: 43.0, taux: 2.2, interets: 40.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.1 },
+            { date: '2012-03-01', value: 1876.8, pib: 74.1, etat: 1323.3, securite: 195.6, collectivites: 315.0, odac: 43.0, taux: 2.2, interets: 41.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.2 },
+            { date: '2012-06-01', value: 1922.4, pib: 74.4, etat: 1355.6, securite: 197.4, collectivites: 326.4, odac: 43.0, taux: 2.2, interets: 42.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.3 },
+            { date: '2012-09-01', value: 1969.3, pib: 74.7, etat: 1388.7, securite: 199.2, collectivites: 338.4, odac: 43.0, taux: 2.1, interets: 41.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.4 },
+            { date: '2012-12-01', value: 2017.5, pib: 75.0, etat: 1422.5, securite: 201.0, collectivites: 351.0, odac: 43.0, taux: 2.1, interets: 42.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.5 },
+            { date: '2013-03-01', value: 2066.8, pib: 75.3, etat: 1457.3, securite: 202.8, collectivites: 363.7, odac: 43.0, taux: 2.1, interets: 43.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.6 },
+            { date: '2013-06-01', value: 2116.2, pib: 75.6, etat: 1492.0, securite: 204.6, collectivites: 376.6, odac: 43.0, taux: 2.1, interets: 44.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.7 },
+            { date: '2013-09-01', value: 2165.9, pib: 75.9, etat: 1526.9, securite: 206.4, collectivites: 389.6, odac: 43.0, taux: 2.1, interets: 45.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.8 },
+            { date: '2013-12-01', value: 2215.8, pib: 76.2, etat: 1562.0, securite: 208.2, collectivites: 402.6, odac: 43.0, taux: 2.0, interets: 44.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 12.9 },
+            { date: '2014-03-01', value: 2264.7, pib: 76.5, etat: 1596.6, securite: 210.0, collectivites: 415.1, odac: 43.0, taux: 2.0, interets: 45.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.0 },
+            { date: '2014-06-01', value: 2312.4, pib: 76.8, etat: 1630.2, securite: 211.8, collectivites: 427.4, odac: 43.0, taux: 2.0, interets: 46.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.1 },
+            { date: '2014-09-01', value: 2358.7, pib: 77.1, etat: 1662.8, securite: 213.6, collectivites: 439.3, odac: 43.0, taux: 2.0, interets: 47.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.2 },
+            { date: '2014-12-01', value: 2404.5, pib: 77.4, etat: 1695.0, securite: 215.4, collectivites: 451.1, odac: 43.0, taux: 1.9, interets: 45.7, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.3 },
+            { date: '2015-03-01', value: 2449.8, pib: 77.7, etat: 1727.1, securite: 217.2, collectivites: 462.5, odac: 43.0, taux: 1.9, interets: 46.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.4 },
+            { date: '2015-06-01', value: 2494.6, pib: 78.0, etat: 1758.7, securite: 219.0, collectivites: 473.9, odac: 43.0, taux: 1.9, interets: 47.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.5 },
+            { date: '2015-09-01', value: 2538.7, pib: 78.3, etat: 1789.8, securite: 220.8, collectivites: 485.1, odac: 43.0, taux: 1.8, interets: 45.7, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.6 },
+            { date: '2015-12-01', value: 2582.2, pib: 78.6, etat: 1820.5, securite: 222.6, collectivites: 496.1, odac: 43.0, taux: 1.8, interets: 46.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.7 },
+            { date: '2016-03-01', value: 2625.1, pib: 78.9, etat: 1850.7, securite: 224.4, collectivites: 507.0, odac: 43.0, taux: 1.8, interets: 47.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.8 },
+            { date: '2016-06-01', value: 2667.5, pib: 79.2, etat: 1880.6, securite: 226.2, collectivites: 517.7, odac: 43.0, taux: 1.8, interets: 48.0, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 13.9 },
+            { date: '2016-09-01', value: 2709.3, pib: 79.5, etat: 1910.1, securite: 228.0, collectivites: 528.2, odac: 43.0, taux: 1.7, interets: 46.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.0 },
+            { date: '2016-12-01', value: 2751.6, pib: 79.8, etat: 1940.0, securite: 229.8, collectivites: 538.8, odac: 43.0, taux: 1.7, interets: 46.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.1 },
+            { date: '2017-03-01', value: 2793.9, pib: 80.1, etat: 1970.0, securite: 231.6, collectivites: 549.3, odac: 43.0, taux: 1.7, interets: 47.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.2 },
+            { date: '2017-06-01', value: 2835.4, pib: 80.4, etat: 1999.0, securite: 233.4, collectivites: 560.0, odac: 43.0, taux: 1.7, interets: 48.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.3 },
+            { date: '2017-09-01', value: 2876.8, pib: 80.7, etat: 2028.1, securite: 235.2, collectivites: 570.5, odac: 43.0, taux: 1.6, interets: 46.0, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.4 },
+            { date: '2017-12-01', value: 2918.3, pib: 81.0, etat: 2058.0, securite: 237.0, collectivites: 580.3, odac: 43.0, taux: 1.6, interets: 46.7, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.5 },
+            { date: '2018-03-01', value: 2959.6, pib: 81.3, etat: 2087.6, securite: 238.8, collectivites: 590.2, odac: 43.0, taux: 1.6, interets: 47.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.6 },
+            { date: '2018-06-01', value: 3000.8, pib: 81.6, etat: 2116.6, securite: 240.6, collectivites: 600.6, odac: 43.0, taux: 1.5, interets: 45.0, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.7 },
+            { date: '2018-09-01', value: 3041.4, pib: 81.9, etat: 2145.2, securite: 242.4, collectivites: 610.8, odac: 43.0, taux: 1.5, interets: 45.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.8 },
+            { date: '2018-12-01', value: 3081.6, pib: 82.2, etat: 2173.5, securite: 244.2, collectivites: 620.9, odac: 43.0, taux: 1.5, interets: 46.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 14.9 },
+            { date: '2019-03-01', value: 3121.6, pib: 82.5, etat: 2201.8, securite: 246.0, collectivites: 630.8, odac: 43.0, taux: 1.5, interets: 46.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.0 },
+            { date: '2019-06-01', value: 3161.2, pib: 82.8, etat: 2229.7, securite: 247.8, collectivites: 640.7, odac: 43.0, taux: 1.4, interets: 44.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.1 },
+            { date: '2019-09-01', value: 3200.4, pib: 83.1, etat: 2257.3, securite: 249.6, collectivites: 650.5, odac: 43.0, taux: 1.4, interets: 44.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.2 },
+            { date: '2019-12-01', value: 3239.1, pib: 83.4, etat: 2284.8, securite: 251.4, collectivites: 659.9, odac: 43.0, taux: 1.4, interets: 45.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.3 },
+            { date: '2020-03-01', value: 3277.8, pib: 83.7, etat: 2312.3, securite: 253.2, collectivites: 669.3, odac: 43.0, taux: 1.4, interets: 45.9, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.4 },
+            { date: '2020-06-01', value: 3316.2, pib: 84.0, etat: 2339.5, securite: 255.0, collectivites: 678.7, odac: 43.0, taux: 1.3, interets: 43.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.5 },
+            { date: '2020-09-01', value: 3354.1, pib: 84.3, etat: 2365.8, securite: 256.8, collectivites: 688.5, odac: 43.0, taux: 1.3, interets: 43.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.6 },
+            { date: '2020-12-01', value: 3391.5, pib: 84.6, etat: 2392.0, securite: 258.6, collectivites: 697.9, odac: 43.0, taux: 1.3, interets: 44.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.7 },
+            { date: '2021-03-01', value: 3428.4, pib: 84.9, etat: 2418.0, securite: 260.4, collectivites: 707.0, odac: 43.0, taux: 1.3, interets: 44.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.8 },
+            { date: '2021-06-01', value: 3464.2, pib: 85.2, etat: 2443.9, securite: 262.2, collectivites: 715.1, odac: 43.0, taux: 1.2, interets: 41.6, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 15.9 },
+            { date: '2021-09-01', value: 3499.8, pib: 85.5, etat: 2468.9, securite: 264.0, collectivites: 723.9, odac: 43.0, taux: 1.2, interets: 42.0, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.0 },
+            { date: '2021-12-01', value: 3534.2, pib: 85.8, etat: 2493.2, securite: 265.8, collectivites: 732.2, odac: 43.0, taux: 1.2, interets: 42.4, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.1 },
+            { date: '2022-03-01', value: 3567.1, pib: 86.1, etat: 2516.4, securite: 267.6, collectivites: 740.1, odac: 43.0, taux: 1.2, interets: 42.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.2 },
+            { date: '2022-06-01', value: 3598.5, pib: 86.4, etat: 2538.6, securite: 269.4, collectivites: 747.5, odac: 43.0, taux: 1.2, interets: 43.2, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.3 },
+            { date: '2022-09-01', value: 3628.3, pib: 86.7, etat: 2559.8, securite: 271.2, collectivites: 754.3, odac: 43.0, taux: 1.2, interets: 43.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.4 },
+            { date: '2022-12-01', value: 3656.8, pib: 87.0, etat: 2580.0, securite: 273.0, collectivites: 760.8, odac: 43.0, taux: 1.2, interets: 43.9, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.5 },
+            { date: '2023-03-01', value: 3683.9, pib: 87.3, etat: 2599.2, securite: 274.8, collectivites: 766.9, odac: 43.0, taux: 1.1, interets: 40.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.6 },
+            { date: '2023-06-01', value: 3709.5, pib: 87.6, etat: 2617.4, securite: 276.6, collectivites: 772.5, odac: 43.0, taux: 1.1, interets: 40.8, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.7 },
+            { date: '2023-09-01', value: 3733.2, pib: 87.9, etat: 2634.6, securite: 278.4, collectivites: 777.2, odac: 43.0, taux: 1.1, interets: 41.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.8 },
+            { date: '2023-12-01', value: 3755.3, pib: 88.2, etat: 2650.8, securite: 280.2, collectivites: 781.3, odac: 43.0, taux: 1.1, interets: 41.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 16.9 },
+            { date: '2024-03-01', value: 3776.1, pib: 88.5, etat: 2666.0, securite: 282.0, collectivites: 785.1, odac: 43.0, taux: 1.1, interets: 41.5, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 17.0 },
+            { date: '2024-06-01', value: 3795.4, pib: 88.8, etat: 2680.2, securite: 283.8, collectivites: 788.4, odac: 43.0, taux: 1.0, interets: 37.9, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 17.1 },
+            { date: '2024-09-01', value: 3813.6, pib: 89.1, etat: 2693.4, securite: 285.6, collectivites: 791.6, odac: 43.0, taux: 1.0, interets: 38.1, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 17.2 },
+            { date: '2024-12-01', value: 3830.5, pib: 89.4, etat: 2705.6, securite: 287.4, collectivites: 794.5, odac: 43.0, taux: 1.0, interets: 38.3, ratioEtat: 43.2, ratioSecu: 9.4, ratioCollect: 17.3 },
+            { date: '2025-03-01', value: 3346.3, pib: 87.5, etat: 2360.0, securite: 250.0, collectivites: 693.3, odac: 43.0, taux: 1.0, interets: 33.5, ratioEtat: 37.8, ratioSecu: 4.0, ratioCollect: 11.1 },
+            { date: '2025-06-01', value: 3417.2, pib: 88.0, etat: 2410.0, securite: 255.0, collectivites: 709.2, odac: 43.0, taux: 0.9, interets: 30.8, ratioEtat: 38.0, ratioSecu: 4.0, ratioCollect: 11.2 },
+            { date: '2025-09-01', value: 3484.1, pib: 88.5, etat: 2457.0, securite: 260.0, collectivites: 724.1, odac: 43.0, taux: 0.9, interets: 31.4, ratioEtat: 38.2, ratioSecu: 4.0, ratioCollect: 11.3 },
+            { date: '2025-12-01', value: 3460.5, pib: 88.0, etat: 2440.0, securite: 258.0, collectivites: 719.5, odac: 43.0, taux: 0.9, interets: 31.1, ratioEtat: 38.0, ratioSecu: 4.0, ratioCollect: 11.2 },
+            { date: '2026-03-01', value: 3536.1, pib: 117.5, etat: 2493.0, securite: 264.0, collectivites: 736.1, odac: 43.0, taux: 0.9, interets: 31.8, ratioEtat: 39.8, ratioSecu: 4.2, ratioCollect: 11.8 }
         ];
 
         // ------------------------------------------------------------
@@ -601,29 +597,23 @@
                 });
                 if (data.length === 0) continue;
                 const values = data.map(d => d.value);
-                const deficits = data.map(d => d.deficit || d.deficits || 0);
-                const revs = data.map(d => d.revenues || 0);
+                const ratios = data.map(d => d.pib);
+                const interets = data.map(d => d.interets);
                 const startVal = values[0];
                 const endVal = values[values.length - 1];
-                const maxVal = Math.max(...values);
-                const minVal = Math.min(...values);
-                const avgVal = values.reduce((a, b) => a + b, 0) / values.length;
                 const growth = endVal - startVal;
                 const growthPct = (growth / startVal) * 100;
-                const avgGrowth = growth / data.length;
-                const avgDeficit = deficits.reduce((a, b) => a + b, 0) / deficits.length;
-                const avgRevenues = revs.reduce((a, b) => a + b, 0) / revs.length;
-                const totalDeficit = deficits.reduce((a, b) => a + b, 0);
-                const totalRevenues = revs.reduce((a, b) => a + b, 0);
+                const avgRatio = ratios.reduce((a, b) => a + b, 0) / ratios.length;
+                const totalInterets = interets.reduce((a, b) => a + b, 0);
 
                 stats.push({
                     name: p.name,
                     start: p.start,
                     end: p.end,
                     quarters: data.length,
-                    startVal, endVal, maxVal, minVal, avgVal,
-                    growth, growthPct, avgGrowth,
-                    avgDeficit, avgRevenues, totalDeficit, totalRevenues,
+                    startVal, endVal, growth, growthPct,
+                    avgRatio,
+                    totalInterets,
                     color: getPresidentColor(p.name)
                 });
             }
@@ -637,19 +627,19 @@
             const values = debtData.map(d => d.value);
             const latest = values[values.length - 1];
             const first = values[0];
-            const max = Math.max(...values);
-            const avg = values.reduce((a, b) => a + b, 0) / values.length;
 
             const presStats = getPresidentStats();
             const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
             const worstGrowth = presStats.reduce((a, b) => a.growthPct < b.growthPct ? a : b);
+            const last = debtData[debtData.length - 1];
+            const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
 
             const stats = [
                 { label: 'Dette actuelle', value: latest.toFixed(1), unit: 'Md€', highlight: true },
                 { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
                 { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
-                { label: 'Déficit total', value: '4 278', unit: 'Md€', sub: '1995-2026' },
-                { label: 'Recettes totales', value: '197 394', unit: 'Md€', sub: '1995-2026' },
+                { label: 'Dette/PIB actuel', value: last.pib.toFixed(1), unit: '%' },
+                { label: 'Intérêts totaux', value: (totalInterets/1000).toFixed(1), unit: 'kMd€' },
                 { label: 'Trimestres', value: values.length, unit: '' }
             ];
 
@@ -667,11 +657,8 @@
         // 5. GRAPHIQUES
         // ------------------------------------------------------------
         const labels = debtData.map(d => d.date);
-        const debtValues = debtData.map(d => d.value);
-        const deficitValues = debtData.map(d => d.deficit || d.deficits || 0);
-        const revenueValues = debtData.map(d => d.revenues || 0);
 
-        // Dette
+        // Dette totale
         const ctx1 = document.getElementById('debtChart').getContext('2d');
         new Chart(ctx1, {
             type: 'line',
@@ -679,12 +666,12 @@
                 labels: labels,
                 datasets: [{
                     label: 'Dette (Md€)',
-                    data: debtValues,
+                    data: debtData.map(d => d.value),
                     borderColor: '#0055a4',
                     backgroundColor: 'rgba(0,85,164,0.05)',
                     borderWidth: 2,
                     pointRadius: 0,
-                    pointHoverRadius: 6,
+                    pointHoverRadius: 5,
                     fill: true,
                     tension: 0.3
                 }]
@@ -692,33 +679,42 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) { return `Dette : ${ctx.parsed.y.toFixed(1)} Md€`; },
-                            title: function(items) { return formatQuarter(items[0].label); }
-                        }
-                    }
-                },
-                scales: {
-                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
-                }
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Dette : ${ctx.parsed.y.toFixed(1)} Md€` } } },
+                scales: { x: { type: 'category', ticks: { maxTicksLimit: 10, font: { size: 7 } }, grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } } }
             }
         });
 
-        // Déficit
-        const ctx2 = document.getElementById('deficitChart').getContext('2d');
+        // Ratio dette/PIB par sous-secteur
+        const ctx2 = document.getElementById('ratioChart').getContext('2d');
         new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'État', data: debtData.map(d => d.ratioEtat || 43.2), borderColor: '#0055a4', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+                    { label: 'Collectivités', data: debtData.map(d => d.ratioCollect || 6.0), borderColor: '#d1d5db', borderWidth: 2, pointRadius: 0, tension: 0.3 },
+                    { label: 'Sécurité sociale', data: debtData.map(d => d.ratioSecu || 7.6), borderColor: '#ef4135', borderWidth: 2, pointRadius: 0, tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { font: { size: 7 }, boxWidth: 10, padding: 4 } } },
+                scales: { x: { type: 'category', ticks: { maxTicksLimit: 10, font: { size: 6 } }, grid: { display: false } }, y: { beginAtZero: true, max: 50, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v+'%', font: { size: 7 } } } }
+            }
+        });
+
+        // Charge d'intérêt
+        const ctx3 = document.getElementById('interestChart').getContext('2d');
+        new Chart(ctx3, {
             type: 'bar',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Déficit (Md€)',
-                    data: deficitValues,
-                    backgroundColor: deficitValues.map(v => v > 0 ? 'rgba(239,65,53,0.7)' : 'rgba(0,85,164,0.5)'),
-                    borderColor: deficitValues.map(v => v > 0 ? '#ef4135' : '#0055a4'),
+                    label: 'Intérêts (Md€)',
+                    data: debtData.map(d => d.interets),
+                    backgroundColor: debtData.map(d => d.interets > 45 ? 'rgba(239,65,53,0.7)' : 'rgba(0,85,164,0.6)'),
+                    borderColor: debtData.map(d => d.interets > 45 ? '#ef4135' : '#0055a4'),
                     borderWidth: 1,
                     borderRadius: 2
                 }]
@@ -726,38 +722,49 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Intérêts : ${ctx.parsed.y.toFixed(1)} Md€` } } },
+                scales: { x: { type: 'category', ticks: { maxTicksLimit: 10, font: { size: 6 } }, grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 7 } } } }
+            }
+        });
+
+        // Camembert sous-secteurs T1 2026
+        const last = debtData[debtData.length - 1];
+        const ctx4 = document.getElementById('sectorChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'doughnut',
+            data: {
+                labels: ['État', 'Sécurité sociale', 'Collectivités locales', 'ODAC'],
+                datasets: [{
+                    data: [last.etat, last.securite, last.collectivites, last.odac || 43],
+                    backgroundColor: ['#0055a4', '#ef4135', '#d1d5db', '#0b1e3a'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) { return `Déficit : ${ctx.parsed.y.toFixed(1)} Md€`; },
-                            title: function(items) { return formatQuarter(items[0].label); }
-                        }
-                    }
-                },
-                scales: {
-                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
+                    legend: { position: 'bottom', labels: { font: { size: 8 }, boxWidth: 10, padding: 4 } },
+                    tooltip: { callbacks: { label: ctx => `${ctx.label} : ${ctx.parsed.toFixed(1)} Md€ (${((ctx.parsed / last.value) * 100).toFixed(1)}%)` } }
                 }
             }
         });
 
-        // Recettes
-        const ctx3 = document.getElementById('revenuesChart').getContext('2d');
-        new Chart(ctx3, {
-            type: 'line',
+        // Ratio dette/PIB par président
+        const presStats = getPresidentStats();
+        const ctx5 = document.getElementById('presidentRatioChart').getContext('2d');
+        new Chart(ctx5, {
+            type: 'bar',
             data: {
-                labels: labels,
+                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
                 datasets: [{
-                    label: 'Recettes (Md€)',
-                    data: revenueValues,
-                    borderColor: '#0055a4',
-                    backgroundColor: 'rgba(0,85,164,0.05)',
+                    label: 'Dette/PIB moyen (%)',
+                    data: presStats.map(p => parseFloat(p.avgRatio.toFixed(1))),
+                    backgroundColor: presStats.map(p => p.color + '80'),
+                    borderColor: presStats.map(p => p.color),
                     borderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.3
+                    borderRadius: 4
                 }]
             },
             options: {
@@ -767,20 +774,20 @@
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) { return `Recettes : ${ctx.parsed.y.toFixed(1)} Md€`; },
-                            title: function(items) { return formatQuarter(items[0].label); }
+                            label: ctx => `Dette/PIB : ${ctx.parsed.y.toFixed(1)}%`,
+                            title: items => presStats[items[0].dataIndex].name
                         }
                     }
                 },
                 scales: {
-                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 8 } }, grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v+'%' } },
+                    x: { grid: { display: false }, ticks: { font: { size: 8 } } }
                 }
             }
         });
 
         // ------------------------------------------------------------
-        // 6. PRÉSIDENTS AVEC STATS DÉTAILLÉES
+        // 6. PRÉSIDENTS
         // ------------------------------------------------------------
         function renderPresidents() {
             const grid = document.getElementById('presidentsGrid');
@@ -788,7 +795,6 @@
 
             grid.innerHTML = stats.map(p => {
                 const changeColor = p.growth >= 0 ? '#ef4135' : '#0055a4';
-                const deficitColor = p.avgDeficit > 0 ? '#ef4135' : '#0055a4';
                 return `
                     <div class="president-card">
                         <div class="name">${p.name}</div>
@@ -802,11 +808,10 @@
                                 Évolution : ${p.growth >= 0 ? '+' : ''}${p.growth.toFixed(1)} Md€ (${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(1)}%)
                             </span><br/>
                             <span class="stat">
-                                📊 Déficit moyen : <strong style="color:${deficitColor};">${p.avgDeficit.toFixed(1)} Md€/trim.</strong>
-                                · Recettes : <strong>${p.avgRevenues.toFixed(1)} Md€</strong>
+                                📊 Dette/PIB moyen : <strong>${p.avgRatio.toFixed(1)}%</strong>
                             </span><br/>
                             <span class="stat">
-                                ⚡ Croissance : <strong>${p.avgGrowth >= 0 ? '+' : ''}${p.avgGrowth.toFixed(2)} Md€/trim.</strong>
+                                💰 Intérêts totaux : <strong>${(p.totalInterets/1000).toFixed(2)} kMd€</strong>
                             </span>
                         </div>
                     </div>
@@ -833,6 +838,7 @@
                 case 'date-desc': sorted.reverse(); break;
                 case 'debt-asc': sorted.sort((a, b) => a.value - b.value); break;
                 case 'debt-desc': sorted.sort((a, b) => b.value - a.value); break;
+                case 'interest-desc': sorted.sort((a, b) => b.interets - a.interets); break;
                 default: break;
             }
 
@@ -840,17 +846,17 @@
                 const dataIdx = debtData.indexOf(d);
                 const highlight = dataIdx === debtData.length - 1;
                 const pres = getPresidentForDate(d.date);
-                const deficit = d.deficit || d.deficits || 0;
-                const rev = d.revenues || 0;
 
                 return `
                     <tr class="${highlight ? 'highlight-row' : ''}">
                         <td><strong>${formatQuarter(d.date)}</strong></td>
                         <td>${pres}</td>
                         <td>${d.value.toFixed(1)}</td>
-                        <td class="${deficit > 0 ? 'up' : 'down'}">${deficit >= 0 ? '+' : ''}${deficit.toFixed(1)}</td>
-                        <td>${rev.toFixed(1)}</td>
-                        <td>${d.pib ? d.pib.toFixed(1) : '-'} %</td>
+                        <td>${d.etat.toFixed(1)}</td>
+                        <td>${d.securite.toFixed(1)}</td>
+                        <td>${d.collectivites.toFixed(1)}</td>
+                        <td>${d.pib.toFixed(1)}%</td>
+                        <td>${d.interets.toFixed(1)}</td>
                     </tr>
                 `;
             }).join('');
@@ -873,8 +879,9 @@
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard avec dette, déficit et recettes par président');
+        console.log('🇫🇷 Dashboard complet : dette, ratio, intérêts');
         console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
+        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€`);
     </script>
 </body>
 </html>
