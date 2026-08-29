@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finances publiques · Tous les présidents (1959-2026)</title>
+    <title>Finances publiques · Tous les présidents (1959-2026) · € & FRF</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
@@ -247,11 +247,13 @@
             border-bottom: 3px solid #0055a4;
             position: sticky;
             top: 0;
+            white-space: nowrap;
         }
         table th:last-child { border-bottom-color: #ef4135; }
         table td {
             padding: 4px 5px;
             border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
         }
         table tr:hover td { background: #f8fafc; }
         table .highlight-row td {
@@ -345,19 +347,19 @@
             <div class="presidents-grid" id="presidentsGrid"></div>
         </div>
 
-        <!-- Tableau -->
+        <!-- Tableau avec colonnes en francs -->
         <div class="table-section">
             <h2>
                 <i class="fas fa-table" style="color:#0055a4;"></i>
-                Données <span class="blue">détaillées</span> par <span class="red">trimestre</span>
+                Données <span class="blue">détaillées</span> par <span class="red">trimestre</span> · <span class="blue">€</span> &amp; <span class="red">FRF</span>
             </h2>
             <div class="table-controls">
                 <input type="text" id="searchInput" placeholder="🔍 Rechercher..." />
                 <select id="sortSelect">
                     <option value="date-asc">📅 Date (ancien → récent)</option>
                     <option value="date-desc">📅 Date (récent → ancien)</option>
-                    <option value="debt-asc">💰 Dette (croissant)</option>
-                    <option value="debt-desc">💰 Dette (décroissant)</option>
+                    <option value="debt-asc">💰 Dette € (croissant)</option>
+                    <option value="debt-desc">💰 Dette € (décroissant)</option>
                 </select>
             </div>
             <div class="table-container">
@@ -367,8 +369,10 @@
                             <th>Trimestre</th>
                             <th>Président</th>
                             <th>Dette (Md€)</th>
+                            <th>Dette (MdF)</th>
                             <th>Dette/PIB (%)</th>
                             <th>Intérêts (Md€)</th>
+                            <th>Intérêts (MdF)</th>
                             <th>Taux (%)</th>
                         </tr>
                     </thead>
@@ -761,13 +765,13 @@
         }
 
         // ------------------------------------------------------------
-        // 4. STATISTIQUES (ajout de la conversion en francs)
+        // 4. STATISTIQUES (avec conversion en francs)
         // ------------------------------------------------------------
         function renderStats() {
             const values = debtData.map(d => d.value);
             const latest = values[values.length - 1];
             const first = values[0];
-            const tauxConversion = 6.55957; // 1 € = 6,55957 FRF
+            const tauxConversion = 6.55957;
 
             const presStats = getPresidentStats();
             const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
@@ -776,14 +780,14 @@
             const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
 
             const stats = [
-                { label: 'Dette actuelle', value: latest.toFixed(1), unit: 'Md€', highlight: true },
+                { label: 'Dette actuelle (€)', value: latest.toFixed(1), unit: 'Md€', highlight: true },
+                { label: 'Dette actuelle (FRF)', value: (latest * tauxConversion).toFixed(0), unit: 'MdF' },
                 { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
                 { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
                 { label: 'Dette/PIB actuel', value: last.pib.toFixed(1), unit: '%' },
-                { label: 'Intérêts totaux', value: (totalInterets/1000).toFixed(1), unit: 'kMd€' },
-                { label: 'Trimestres', value: values.length, unit: '' },
-                // Nouvelle ligne : dette en francs
-                { label: 'Dette actuelle (FRF)', value: (latest * tauxConversion).toFixed(0), unit: 'MdF' }
+                { label: 'Intérêts totaux (€)', value: (totalInterets/1000).toFixed(2), unit: 'kMd€' },
+                { label: 'Intérêts totaux (FRF)', value: ((totalInterets * tauxConversion)/1000).toFixed(2), unit: 'kMdF' },
+                { label: 'Trimestres', value: values.length, unit: '' }
             ];
 
             const container = document.getElementById('statsAdvanced');
@@ -926,7 +930,7 @@
         }
 
         // ------------------------------------------------------------
-        // 7. TABLEAU (inchangé)
+        // 7. TABLEAU avec colonnes en francs
         // ------------------------------------------------------------
         function renderTable(data, sort = 'date-asc', search = '') {
             const tbody = document.getElementById('tableBody');
@@ -947,18 +951,24 @@
                 default: break;
             }
 
+            const taux = 6.55957;
+
             tbody.innerHTML = sorted.map((d) => {
                 const dataIdx = debtData.indexOf(d);
                 const highlight = dataIdx === debtData.length - 1;
                 const pres = getPresidentForDate(d.date);
+                const detteFrf = d.value * taux;
+                const interetsFrf = d.interets * taux;
 
                 return `
                     <tr class="${highlight ? 'highlight-row' : ''}">
                         <td><strong>${formatQuarter(d.date)}</strong></td>
                         <td>${pres}</td>
                         <td>${d.value.toFixed(1)}</td>
+                        <td>${detteFrf.toFixed(1)}</td>
                         <td>${d.pib.toFixed(1)}%</td>
                         <td>${d.interets.toFixed(1)}</td>
+                        <td>${interetsFrf.toFixed(1)}</td>
                         <td>${d.taux.toFixed(2)}%</td>
                     </tr>
                 `;
@@ -982,11 +992,11 @@
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard complet avec orientation politique et conversion en francs');
+        console.log('🇫🇷 Dashboard avec détails en euros et francs');
         console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
         const last = debtData[debtData.length - 1];
         const tauxConversion = 6.55957;
-        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * tauxConversion).toFixed(0)} MdF)`);
+        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * tauxConversion).toFixed(1)} MdF)`);
     </script>
 </body>
 </html>
