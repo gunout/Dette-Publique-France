@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finances publiques · Tous les présidents (1959-2026) · € & FRF</title>
+    <title>Finances publiques · 8 présidents · € & FRF · Ratio comparatif</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
@@ -180,6 +180,7 @@
         .president-card .debt-info .change { font-weight: 700; }
         .president-card .debt-info .stat { color: #64748b; }
         .president-card .debt-info .stat strong { color: #0b1e3a; }
+        .president-card .debt-info .ratio { font-weight: 600; background: #e9edf2; padding: 0 6px; border-radius: 4px; }
         .president-card:nth-child(1) { border-left-color: #0b1e3a; }
         .president-card:nth-child(2) { border-left-color: #0055a4; }
         .president-card:nth-child(3) { border-left-color: #d1d5db; }
@@ -336,9 +337,10 @@
             </div>
         </div>
 
+        <!-- Statistiques -->
         <div class="stats-advanced" id="statsAdvanced"></div>
 
-        <!-- Graphiques -->
+        <!-- Graphiques classiques -->
         <div class="charts-row-3">
             <div class="chart-container">
                 <div class="chart-header"><h2><span class="blue">Dette</span> totale (Md€)</h2></div>
@@ -354,6 +356,28 @@
             </div>
         </div>
 
+        <!-- NOUVEAU : Comparatif des présidents (ratios) -->
+        <div style="margin-bottom:24px;">
+            <h2 style="font-size:1rem;font-weight:700;color:#0b1e3a;padding:0 4px 12px;">
+                <i class="fas fa-chart-simple" style="color:#0055a4;"></i>
+                <span class="blue">Comparatif</span> des présidents · <span class="red">ratios annuels</span>
+            </h2>
+            <div class="charts-row-3">
+                <div class="chart-container">
+                    <div class="chart-header"><h2><span class="blue">Hausse annuelle</span> de la dette (Md€)</h2></div>
+                    <div class="chart-wrapper-sm"><canvas id="annualDebtChart"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header"><h2><span class="blue">Hausse annuelle</span> Dette/PIB (pts)</h2></div>
+                    <div class="chart-wrapper-sm"><canvas id="annualRatioChart"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header"><h2><span class="blue">Intérêts</span> totaux versés (Md€)</h2></div>
+                    <div class="chart-wrapper-sm"><canvas id="interetsChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Présidents -->
         <div class="presidents-section">
             <h2>
@@ -363,7 +387,7 @@
             <div class="presidents-grid" id="presidentsGrid"></div>
         </div>
 
-        <!-- Tableau avec colonnes en francs -->
+        <!-- Tableau -->
         <div class="table-section">
             <h2>
                 <i class="fas fa-table" style="color:#0055a4;"></i>
@@ -415,7 +439,7 @@
 
     <script>
         // ------------------------------------------------------------
-        // 1. DONNÉES COMPLÈTES (inchangées)
+        // 1. DONNÉES COMPLÈTES
         // ------------------------------------------------------------
         const debtData = [
             // Charles de Gaulle (1959-1969)
@@ -712,8 +736,10 @@
         ];
 
         // ------------------------------------------------------------
-        // 3. FONCTIONS
+        // 3. FONCTIONS UTILITAIRES
         // ------------------------------------------------------------
+        const CONVERSION = 6.55957;
+
         function formatQuarter(dateStr) {
             const d = new Date(dateStr);
             const y = d.getFullYear();
@@ -746,6 +772,7 @@
             return map[name] || '#94a3b8';
         }
 
+        // Calcul des stats par président (incluant les ratios annuels)
         function getPresidentStats() {
             const stats = [];
             for (let p of presidents) {
@@ -766,15 +793,23 @@
                 const avgRatio = ratios.reduce((a, b) => a + b, 0) / ratios.length;
                 const totalInterets = interets.reduce((a, b) => a + b, 0);
 
+                // Durée en années (approximative)
+                const years = (endDate - startDate) / (1000 * 60 * 60 * 24 * 365.25);
+                const avgAnnualGrowth = growth / years; // Md€ / an
+                const avgAnnualRatioGrowth = (ratios[ratios.length - 1] - ratios[0]) / years; // pts / an
+
                 stats.push({
                     name: p.name,
                     political: p.political,
                     start: p.start,
                     end: p.end,
+                    years: years,
                     quarters: data.length,
                     startVal, endVal, growth, growthPct,
                     avgRatio,
                     totalInterets,
+                    avgAnnualGrowth,
+                    avgAnnualRatioGrowth,
                     color: getPresidentColor(p.name)
                 });
             }
@@ -782,28 +817,25 @@
         }
 
         // ------------------------------------------------------------
-        // 4. STATISTIQUES (avec conversion en francs)
+        // 4. STATISTIQUES (€ & FRF)
         // ------------------------------------------------------------
         function renderStats() {
             const values = debtData.map(d => d.value);
             const latest = values[values.length - 1];
-            const first = values[0];
-            const tauxConversion = 6.55957;
-
+            const last = debtData[debtData.length - 1];
+            const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
             const presStats = getPresidentStats();
             const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
             const worstGrowth = presStats.reduce((a, b) => a.growthPct < b.growthPct ? a : b);
-            const last = debtData[debtData.length - 1];
-            const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
 
             const stats = [
                 { label: 'Dette actuelle (€)', value: latest.toFixed(1), unit: 'Md€', highlight: true },
-                { label: 'Dette actuelle (FRF)', value: (latest * tauxConversion).toFixed(0), unit: 'MdF' },
+                { label: 'Dette actuelle (FRF)', value: (latest * CONVERSION).toFixed(0), unit: 'MdF' },
                 { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
                 { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
                 { label: 'Dette/PIB actuel', value: last.pib.toFixed(1), unit: '%' },
                 { label: 'Intérêts totaux (€)', value: (totalInterets/1000).toFixed(2), unit: 'kMd€' },
-                { label: 'Intérêts totaux (FRF)', value: ((totalInterets * tauxConversion)/1000).toFixed(2), unit: 'kMdF' },
+                { label: 'Intérêts totaux (FRF)', value: ((totalInterets * CONVERSION)/1000).toFixed(2), unit: 'kMdF' },
                 { label: 'Trimestres', value: values.length, unit: '' }
             ];
 
@@ -818,75 +850,87 @@
         }
 
         // ------------------------------------------------------------
-        // 5. GRAPHIQUES (inchangés)
+        // 5. GRAPHIQUES CLASSIQUES
         // ------------------------------------------------------------
         const labels = debtData.map(d => d.date);
 
-        const ctx1 = document.getElementById('debtChart').getContext('2d');
-        new Chart(ctx1, {
+        // Dette totale
+        new Chart(document.getElementById('debtChart'), {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Dette (Md€)',
-                    data: debtData.map(d => d.value),
-                    borderColor: '#0055a4',
-                    backgroundColor: 'rgba(0,85,164,0.05)',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Dette : ${ctx.parsed.y.toFixed(1)} Md€` } } },
-                scales: {
-                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 }, callback: (v,i) => i % 4 === 0 ? labels[i].substring(0,4) : '' }, grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
-                }
-            }
+            data: { labels, datasets: [{ label: 'Dette (Md€)', data: debtData.map(d => d.value), borderColor: '#0055a4', backgroundColor: 'rgba(0,85,164,0.05)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } } } }
         });
 
-        const ctx2 = document.getElementById('ratioChart').getContext('2d');
-        new Chart(ctx2, {
+        // Ratio Dette/PIB
+        new Chart(document.getElementById('ratioChart'), {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Dette/PIB (%)',
-                    data: debtData.map(d => d.pib),
-                    borderColor: '#ef4135',
-                    backgroundColor: 'rgba(239,65,53,0.05)',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Dette/PIB : ${ctx.parsed.y.toFixed(1)}%` } } },
-                scales: {
-                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 }, callback: (v,i) => i % 4 === 0 ? labels[i].substring(0,4) : '' }, grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v+'%' } }
-                }
-            }
+            data: { labels, datasets: [{ label: 'Dette/PIB (%)', data: debtData.map(d => d.pib), borderColor: '#ef4135', backgroundColor: 'rgba(239,65,53,0.05)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v+'%' } } } }
         });
 
+        // Dette par président (fin de mandat)
         const presStats = getPresidentStats();
-        const ctx3 = document.getElementById('presidentChart').getContext('2d');
-        new Chart(ctx3, {
+        new Chart(document.getElementById('presidentChart'), {
+            type: 'bar',
+            data: { labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')), datasets: [{ label: 'Dette fin de mandat (Md€)', data: presStats.map(p => parseFloat(p.endVal.toFixed(1))), backgroundColor: presStats.map(p => p.color + '80'), borderColor: presStats.map(p => p.color), borderWidth: 2, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }, x: { grid: { display: false } } } }
+        });
+
+        // ------------------------------------------------------------
+        // 6. NOUVEAUX GRAPHIQUES COMPARATIFS (RATIOS ANNUELS)
+        // ------------------------------------------------------------
+        // 6a. Hausse annuelle de la dette (Md€)
+        new Chart(document.getElementById('annualDebtChart'), {
             type: 'bar',
             data: {
-                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
+                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
                 datasets: [{
-                    label: 'Dette fin de mandat (Md€)',
-                    data: presStats.map(p => parseFloat(p.endVal.toFixed(1))),
+                    label: 'Hausse annuelle (Md€)',
+                    data: presStats.map(p => parseFloat(p.avgAnnualGrowth.toFixed(2))),
+                    backgroundColor: presStats.map(p => p.avgAnnualGrowth >= 0 ? '#ef4135' : '#0055a4' + '80'),
+                    borderColor: presStats.map(p => p.avgAnnualGrowth >= 0 ? '#ef4135' : '#0055a4'),
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y.toFixed(2)} Md€ / an` } } },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v.toFixed(1) } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // 6b. Hausse annuelle du ratio Dette/PIB (points de pourcentage)
+        new Chart(document.getElementById('annualRatioChart'), {
+            type: 'bar',
+            data: {
+                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
+                datasets: [{
+                    label: 'Hausse annuelle Dette/PIB (pts)',
+                    data: presStats.map(p => parseFloat(p.avgAnnualRatioGrowth.toFixed(2))),
+                    backgroundColor: presStats.map(p => p.avgAnnualRatioGrowth >= 0 ? '#ef4135' : '#0055a4' + '80'),
+                    borderColor: presStats.map(p => p.avgAnnualRatioGrowth >= 0 ? '#ef4135' : '#0055a4'),
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y.toFixed(2)} pts / an` } } },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v.toFixed(1) } }, x: { grid: { display: false } } }
+            }
+        });
+
+        // 6c. Intérêts totaux versés par président (Md€)
+        new Chart(document.getElementById('interetsChart'), {
+            type: 'bar',
+            data: {
+                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
+                datasets: [{
+                    label: 'Intérêts totaux (Md€)',
+                    data: presStats.map(p => parseFloat((p.totalInterets/1000).toFixed(2))),
                     backgroundColor: presStats.map(p => p.color + '80'),
                     borderColor: presStats.map(p => p.color),
                     borderWidth: 2,
@@ -896,24 +940,13 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => `Dette : ${ctx.parsed.y.toFixed(1)} Md€`,
-                            title: items => presStats[items[0].dataIndex].name
-                        }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } },
-                    x: { grid: { display: false }, ticks: { font: { size: 7 } } }
-                }
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y.toFixed(2)} kMd€` } } },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v.toFixed(2) } }, x: { grid: { display: false } } }
             }
         });
 
         // ------------------------------------------------------------
-        // 6. PRÉSIDENTS (avec orientation politique)
+        // 7. PRÉSIDENTS (cartes avec ratio comparatif)
         // ------------------------------------------------------------
         function renderPresidents() {
             const grid = document.getElementById('presidentsGrid');
@@ -921,6 +954,7 @@
 
             grid.innerHTML = stats.map(p => {
                 const changeColor = p.growth >= 0 ? '#ef4135' : '#0055a4';
+                const annualFrf = p.avgAnnualGrowth * CONVERSION;
                 return `
                     <div class="president-card">
                         <div class="name">${p.name}</div>
@@ -939,6 +973,10 @@
                             </span><br/>
                             <span class="stat">
                                 💰 Intérêts totaux : <strong>${(p.totalInterets/1000).toFixed(2)} kMd€</strong>
+                            </span><br/>
+                            <span class="stat ratio">
+                                📈 Hausse annuelle : <strong>${p.avgAnnualGrowth.toFixed(2)} Md€</strong>
+                                <span style="color:#64748b;">(${(annualFrf).toFixed(2)} MdF)</span>
                             </span>
                         </div>
                     </div>
@@ -947,7 +985,7 @@
         }
 
         // ------------------------------------------------------------
-        // 7. TABLEAU avec colonnes en francs
+        // 8. TABLEAU
         // ------------------------------------------------------------
         function renderTable(data, sort = 'date-asc', search = '') {
             const tbody = document.getElementById('tableBody');
@@ -968,15 +1006,12 @@
                 default: break;
             }
 
-            const taux = 6.55957;
-
             tbody.innerHTML = sorted.map((d) => {
                 const dataIdx = debtData.indexOf(d);
                 const highlight = dataIdx === debtData.length - 1;
                 const pres = getPresidentForDate(d.date);
-                const detteFrf = d.value * taux;
-                const interetsFrf = d.interets * taux;
-
+                const detteFrf = d.value * CONVERSION;
+                const interetsFrf = d.interets * CONVERSION;
                 return `
                     <tr class="${highlight ? 'highlight-row' : ''}">
                         <td><strong>${formatQuarter(d.date)}</strong></td>
@@ -993,16 +1028,15 @@
         }
 
         // ------------------------------------------------------------
-        // 8. EXPORT CSV
+        // 9. EXPORT CSV
         // ------------------------------------------------------------
         function downloadCSV() {
-            const taux = 6.55957;
             const header = 'Trimestre,Président,Dette (Md€),Dette (MdF),Dette/PIB (%),Intérêts (Md€),Intérêts (MdF),Taux (%)\n';
             const rows = debtData.map(d => {
                 const q = formatQuarter(d.date);
                 const pres = getPresidentForDate(d.date);
-                const detteFrf = d.value * taux;
-                const interetsFrf = d.interets * taux;
+                const detteFrf = d.value * CONVERSION;
+                const interetsFrf = d.interets * CONVERSION;
                 return `${q},${pres},${d.value.toFixed(1)},${detteFrf.toFixed(1)},${d.pib.toFixed(1)},${d.interets.toFixed(1)},${interetsFrf.toFixed(1)},${d.taux.toFixed(2)}`;
             });
             const csv = header + rows.join('\n');
@@ -1020,7 +1054,7 @@
         document.getElementById('csvBtn').addEventListener('click', downloadCSV);
 
         // ------------------------------------------------------------
-        // 9. RECHERCHE / TRI
+        // 10. RECHERCHE / TRI
         // ------------------------------------------------------------
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
@@ -1033,17 +1067,16 @@
         sortSelect.addEventListener('change', updateTable);
 
         // ------------------------------------------------------------
-        // 10. INIT
+        // 11. INIT
         // ------------------------------------------------------------
         renderStats();
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard avec export CSV (€ & FRF)');
+        console.log('🇫🇷 Dashboard avec ratio comparatif annuel (€ & FRF)');
         console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
         const last = debtData[debtData.length - 1];
-        const tauxConversion = 6.55957;
-        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * tauxConversion).toFixed(1)} MdF)`);
+        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * CONVERSION).toFixed(1)} MdF)`);
     </script>
 </body>
 </html>
