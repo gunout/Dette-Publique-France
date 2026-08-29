@@ -233,6 +233,22 @@
             font-family: 'Inter', sans-serif;
             background: white;
         }
+        .btn-csv {
+            background: #0055a4;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-csv:hover { background: #0b1e3a; }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -361,6 +377,7 @@
                     <option value="debt-asc">💰 Dette € (croissant)</option>
                     <option value="debt-desc">💰 Dette € (décroissant)</option>
                 </select>
+                <button class="btn-csv" id="csvBtn"><i class="fas fa-file-csv"></i> Télécharger CSV</button>
             </div>
             <div class="table-container">
                 <table>
@@ -975,6 +992,36 @@
             }).join('');
         }
 
+        // ------------------------------------------------------------
+        // 8. EXPORT CSV
+        // ------------------------------------------------------------
+        function downloadCSV() {
+            const taux = 6.55957;
+            const header = 'Trimestre,Président,Dette (Md€),Dette (MdF),Dette/PIB (%),Intérêts (Md€),Intérêts (MdF),Taux (%)\n';
+            const rows = debtData.map(d => {
+                const q = formatQuarter(d.date);
+                const pres = getPresidentForDate(d.date);
+                const detteFrf = d.value * taux;
+                const interetsFrf = d.interets * taux;
+                return `${q},${pres},${d.value.toFixed(1)},${detteFrf.toFixed(1)},${d.pib.toFixed(1)},${d.interets.toFixed(1)},${interetsFrf.toFixed(1)},${d.taux.toFixed(2)}`;
+            });
+            const csv = header + rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'finances_publiques_trimestres.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('csvBtn').addEventListener('click', downloadCSV);
+
+        // ------------------------------------------------------------
+        // 9. RECHERCHE / TRI
+        // ------------------------------------------------------------
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
 
@@ -986,13 +1033,13 @@
         sortSelect.addEventListener('change', updateTable);
 
         // ------------------------------------------------------------
-        // 8. INIT
+        // 10. INIT
         // ------------------------------------------------------------
         renderStats();
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard avec détails en euros et francs');
+        console.log('🇫🇷 Dashboard avec export CSV (€ & FRF)');
         console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
         const last = debtData[debtData.length - 1];
         const tauxConversion = 6.55957;
