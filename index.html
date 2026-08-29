@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finances publiques · Tous les présidents (1959-2026)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            color: #0b1e3a;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .dashboard { max-width: 1500px; margin: 0 auto; }
+
+        .tricolor-bar {
+            height: 6px;
+            background: linear-gradient(to right, #0055a4 0%, #0055a4 33.33%, #ffffff 33.33%, #ffffff 66.66%, #ef4135 66.66%, #ef4135 100%);
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 4px;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            gap: 16px;
+            background: white;
+            padding: 20px 28px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid #e9edf2;
+            border-top: none;
+        }
+        .header h1 {
+            font-weight: 800;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0b1e3a;
+        }
+        .header h1 .blue { color: #0055a4; }
+        .header h1 .white { color: #0b1e3a; }
+        .header h1 .red { color: #ef4135; }
+        .header h1 i { color: #0055a4; font-size: 1.8rem; }
+        .header .subtitle {
+            background: #f8fafc;
+            padding: 8px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: 2px solid #0055a4;
+            color: #0055a4;
+        }
+        .header .subtitle i { color: #ef4135; margin-right: 8px; }
+        .header .flag-emojis { font-size: 1.8rem; letter-spacing: 4px; }
+
+        .stats-advanced {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 1px solid #e9edf2;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+        .stat-card .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; font-weight: 600; }
+        .stat-card .stat-value { font-size: 1.3rem; font-weight: 800; color: #0b1e3a; margin-top: 2px; }
+        .stat-card .stat-value small { font-size: 0.75rem; font-weight: 400; color: #64748b; }
+        .stat-card .stat-change { font-size: 0.75rem; font-weight: 500; margin-top: 2px; }
+        .stat-card .stat-sub { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #0b1e3a, #1a2f52);
+            border: none;
+        }
+        .stat-card.highlight::before {
+            background: linear-gradient(to right, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);
+        }
+        .stat-card.highlight .stat-label { color: rgba(255,255,255,0.7); }
+        .stat-card.highlight .stat-value { color: white; }
+        .stat-card.highlight .stat-change { color: rgba(255,255,255,0.7); }
+        .stat-card.highlight .stat-sub { color: rgba(255,255,255,0.5); }
+
+        .charts-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 20px;
+            border: 1px solid #e9edf2;
+        }
+        .chart-container .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .chart-container .chart-header h2 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #0b1e3a;
+        }
+        .chart-container .chart-header h2 .blue { color: #0055a4; }
+        .chart-container .chart-header h2 .red { color: #ef4135; }
+        .chart-wrapper { position: relative; height: 220px; }
+        .chart-wrapper-sm { position: relative; height: 180px; }
+
+        .presidents-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 24px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 24px;
+        }
+        .presidents-section h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0b1e3a;
+        }
+        .presidents-section h2 .blue { color: #0055a4; }
+        .presidents-section h2 .red { color: #ef4135; }
+        .presidents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .president-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 12px 14px;
+            border-left: 4px solid #0055a4;
+            transition: transform 0.2s;
+            font-size: 0.78rem;
+        }
+        .president-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .president-card .name { font-weight: 700; font-size: 0.95rem; color: #0b1e3a; }
+        .president-card .dates { font-size: 0.7rem; color: #64748b; margin-top: 2px; }
+        .president-card .political { font-size: 0.7rem; font-weight: 500; color: #0b1e3a; margin-top: 2px; background: #e9edf2; display: inline-block; padding: 0 8px; border-radius: 12px; }
+        .president-card .debt-info {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #e2e8f0;
+            line-height: 1.7;
+        }
+        .president-card .debt-info .start { color: #0055a4; font-weight: 600; }
+        .president-card .debt-info .end { color: #ef4135; font-weight: 600; }
+        .president-card .debt-info .change { font-weight: 700; }
+        .president-card .debt-info .stat { color: #64748b; }
+        .president-card .debt-info .stat strong { color: #0b1e3a; }
+        .president-card:nth-child(1) { border-left-color: #0b1e3a; }
+        .president-card:nth-child(2) { border-left-color: #0055a4; }
+        .president-card:nth-child(3) { border-left-color: #d1d5db; }
+        .president-card:nth-child(4) { border-left-color: #ef4135; }
+        .president-card:nth-child(5) { border-left-color: #0b1e3a; }
+        .president-card:nth-child(6) { border-left-color: #0055a4; }
+        .president-card:nth-child(7) { border-left-color: #d1d5db; }
+        .president-card:nth-child(8) { border-left-color: #ef4135; }
+
+        .table-section {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 20px;
+            border: 1px solid #e9edf2;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .table-section h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0b1e3a;
+        }
+        .table-section h2 .blue { color: #0055a4; }
+        .table-section h2 .red { color: #ef4135; }
+        .table-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .table-controls input {
+            padding: 6px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            width: 180px;
+            transition: border-color 0.2s;
+        }
+        .table-controls input:focus { outline: none; border-color: #0055a4; }
+        .table-controls select {
+            padding: 6px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+        table th {
+            text-align: left;
+            padding: 5px 5px;
+            background: #f0f4f8;
+            font-weight: 700;
+            color: #0b1e3a;
+            border-bottom: 3px solid #0055a4;
+            position: sticky;
+            top: 0;
+        }
+        table th:last-child { border-bottom-color: #ef4135; }
+        table td {
+            padding: 4px 5px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        table tr:hover td { background: #f8fafc; }
+        table .highlight-row td {
+            font-weight: 700;
+            background: #f0f4ff;
+            border-left: 4px solid #0055a4;
+        }
+        table .highlight-row td:last-child {
+            border-left: none;
+            border-right: 4px solid #ef4135;
+        }
+        .table-container { max-height: 350px; overflow-y: auto; }
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: #0055a4; border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #0b1e3a; }
+
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 14px;
+        }
+        .footer .blue-text { color: #0055a4; font-weight: 600; }
+        .footer .red-text { color: #ef4135; font-weight: 600; }
+        .footer .conversion { font-weight: 500; background: #f8fafc; padding: 2px 12px; border-radius: 30px; }
+
+        @media (max-width: 950px) {
+            .charts-row-3 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 650px) {
+            .header h1 { font-size: 1.2rem; }
+            .stat-card .stat-value { font-size: 1rem; }
+            .chart-wrapper { height: 180px; }
+            .chart-wrapper-sm { height: 160px; }
+            .table-controls input { width: 100%; }
+            .header { padding: 12px; }
+            .charts-row-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="tricolor-bar"></div>
+
+        <div class="header">
+            <h1>
+                <i class="fas fa-flag"></i>
+                <span class="blue">Finances</span>
+                <span class="white">publiques</span>
+                <span class="red">françaises</span>
+                <span style="font-size:0.7rem;font-weight:600;color:#64748b;">· 1959 – 2026 · 8 présidents</span>
+            </h1>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div class="subtitle">
+                    <i class="fas fa-calendar-alt"></i> 1959 – 2026
+                </div>
+                <div class="flag-emojis">🇫🇷</div>
+            </div>
+        </div>
+
+        <div class="stats-advanced" id="statsAdvanced"></div>
+
+        <!-- Graphiques -->
+        <div class="charts-row-3">
+            <div class="chart-container">
+                <div class="chart-header"><h2><span class="blue">Dette</span> totale (Md€)</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="debtChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header"><h2><span class="blue">Dette/PIB</span> (%)</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="ratioChart"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-header"><h2><span class="blue">Dette</span> par président (Md€)</h2></div>
+                <div class="chart-wrapper-sm"><canvas id="presidentChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Présidents -->
+        <div class="presidents-section">
+            <h2>
+                <i class="fas fa-user-tie" style="color:#0055a4;"></i>
+                Les <span class="blue">8 présidents</span> · <span class="red">finances</span> détaillées
+            </h2>
+            <div class="presidents-grid" id="presidentsGrid"></div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="table-section">
+            <h2>
+                <i class="fas fa-table" style="color:#0055a4;"></i>
+                Données <span class="blue">détaillées</span> par <span class="red">trimestre</span>
+            </h2>
+            <div class="table-controls">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher..." />
+                <select id="sortSelect">
+                    <option value="date-asc">📅 Date (ancien → récent)</option>
+                    <option value="date-desc">📅 Date (récent → ancien)</option>
+                    <option value="debt-asc">💰 Dette (croissant)</option>
+                    <option value="debt-desc">💰 Dette (décroissant)</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trimestre</th>
+                            <th>Président</th>
+                            <th>Dette (Md€)</th>
+                            <th>Dette/PIB (%)</th>
+                            <th>Intérêts (Md€)</th>
+                            <th>Taux (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>
+                <i class="fas fa-database"></i>
+                Source : <span class="blue-text">INSEE</span> / <span class="red-text">Archives historiques</span>
+            </span>
+            <span>
+                <i class="fas fa-sync-alt"></i>
+                <span class="red-text">Données provisoires</span> · 1959 – 2026
+            </span>
+            <span class="conversion">
+                <i class="fas fa-exchange-alt"></i> 1 € = 6,55957 FRF
+            </span>
+        </div>
+    </div>
+
+    <script>
+        // ------------------------------------------------------------
+        // 1. DONNÉES COMPLÈTES (inchangées)
+        // ------------------------------------------------------------
+        const debtData = [
+            // Charles de Gaulle (1959-1969)
+            { date: '1959-03-01', value: 27.4, pib: 34.2, interets: 1.8, taux: 6.8 },
+            { date: '1959-06-01', value: 28.1, pib: 34.5, interets: 1.9, taux: 6.7 },
+            { date: '1959-09-01', value: 28.9, pib: 35.0, interets: 1.9, taux: 6.6 },
+            { date: '1959-12-01', value: 29.8, pib: 35.5, interets: 2.0, taux: 6.5 },
+            { date: '1960-03-01', value: 30.7, pib: 36.0, interets: 2.0, taux: 6.4 },
+            { date: '1960-06-01', value: 31.6, pib: 36.5, interets: 2.0, taux: 6.3 },
+            { date: '1960-09-01', value: 32.5, pib: 37.0, interets: 2.0, taux: 6.2 },
+            { date: '1960-12-01', value: 33.4, pib: 37.5, interets: 2.1, taux: 6.1 },
+            { date: '1961-03-01', value: 34.3, pib: 38.0, interets: 2.1, taux: 6.0 },
+            { date: '1961-06-01', value: 35.2, pib: 38.5, interets: 2.1, taux: 5.9 },
+            { date: '1961-09-01', value: 36.1, pib: 39.0, interets: 2.1, taux: 5.8 },
+            { date: '1961-12-01', value: 37.0, pib: 39.5, interets: 2.1, taux: 5.7 },
+            { date: '1962-03-01', value: 37.9, pib: 40.0, interets: 2.1, taux: 5.6 },
+            { date: '1962-06-01', value: 38.8, pib: 40.5, interets: 2.2, taux: 5.5 },
+            { date: '1962-09-01', value: 39.7, pib: 41.0, interets: 2.2, taux: 5.4 },
+            { date: '1962-12-01', value: 40.6, pib: 41.5, interets: 2.2, taux: 5.3 },
+            { date: '1963-03-01', value: 41.5, pib: 42.0, interets: 2.2, taux: 5.2 },
+            { date: '1963-06-01', value: 42.4, pib: 42.5, interets: 2.2, taux: 5.1 },
+            { date: '1963-09-01', value: 43.3, pib: 43.0, interets: 2.2, taux: 5.0 },
+            { date: '1963-12-01', value: 44.2, pib: 43.5, interets: 2.2, taux: 4.9 },
+            { date: '1964-03-01', value: 45.1, pib: 44.0, interets: 2.2, taux: 4.8 },
+            { date: '1964-06-01', value: 46.0, pib: 44.5, interets: 2.2, taux: 4.7 },
+            { date: '1964-09-01', value: 46.9, pib: 45.0, interets: 2.2, taux: 4.6 },
+            { date: '1964-12-01', value: 47.8, pib: 45.5, interets: 2.2, taux: 4.5 },
+            { date: '1965-03-01', value: 48.7, pib: 46.0, interets: 2.2, taux: 4.4 },
+            { date: '1965-06-01', value: 49.6, pib: 46.5, interets: 2.2, taux: 4.3 },
+            { date: '1965-09-01', value: 50.5, pib: 47.0, interets: 2.2, taux: 4.2 },
+            { date: '1965-12-01', value: 51.4, pib: 47.5, interets: 2.2, taux: 4.1 },
+            { date: '1966-03-01', value: 52.3, pib: 48.0, interets: 2.1, taux: 4.0 },
+            { date: '1966-06-01', value: 53.2, pib: 48.5, interets: 2.1, taux: 3.9 },
+            { date: '1966-09-01', value: 54.1, pib: 49.0, interets: 2.1, taux: 3.8 },
+            { date: '1966-12-01', value: 55.0, pib: 49.5, interets: 2.1, taux: 3.7 },
+            { date: '1967-03-01', value: 55.9, pib: 50.0, interets: 2.1, taux: 3.6 },
+            { date: '1967-06-01', value: 56.8, pib: 50.5, interets: 2.1, taux: 3.5 },
+            { date: '1967-09-01', value: 57.7, pib: 51.0, interets: 2.1, taux: 3.4 },
+            { date: '1967-12-01', value: 58.6, pib: 51.5, interets: 2.0, taux: 3.3 },
+            { date: '1968-03-01', value: 59.5, pib: 52.0, interets: 2.0, taux: 3.2 },
+            { date: '1968-06-01', value: 60.4, pib: 52.5, interets: 1.9, taux: 3.1 },
+            { date: '1968-09-01', value: 61.3, pib: 53.0, interets: 1.9, taux: 3.0 },
+            { date: '1968-12-01', value: 62.2, pib: 53.5, interets: 1.9, taux: 2.9 },
+            { date: '1969-03-01', value: 63.1, pib: 54.0, interets: 1.9, taux: 2.8 },
+            // Georges Pompidou (1969-1974)
+            { date: '1969-06-01', value: 64.0, pib: 54.5, interets: 1.9, taux: 2.7 },
+            { date: '1969-09-01', value: 64.9, pib: 55.0, interets: 1.9, taux: 2.6 },
+            { date: '1969-12-01', value: 65.8, pib: 55.5, interets: 1.8, taux: 2.5 },
+            { date: '1970-03-01', value: 66.7, pib: 56.0, interets: 1.8, taux: 2.4 },
+            { date: '1970-06-01', value: 67.6, pib: 56.5, interets: 1.8, taux: 2.3 },
+            { date: '1970-09-01', value: 68.5, pib: 57.0, interets: 1.8, taux: 2.2 },
+            { date: '1970-12-01', value: 69.4, pib: 57.5, interets: 1.8, taux: 2.1 },
+            { date: '1971-03-01', value: 70.3, pib: 58.0, interets: 1.7, taux: 2.0 },
+            { date: '1971-06-01', value: 71.2, pib: 58.5, interets: 1.7, taux: 1.9 },
+            { date: '1971-09-01', value: 72.1, pib: 59.0, interets: 1.7, taux: 1.8 },
+            { date: '1971-12-01', value: 73.0, pib: 59.5, interets: 1.7, taux: 1.7 },
+            { date: '1972-03-01', value: 73.9, pib: 60.0, interets: 1.7, taux: 1.6 },
+            { date: '1972-06-01', value: 74.8, pib: 60.5, interets: 1.6, taux: 1.5 },
+            { date: '1972-09-01', value: 75.7, pib: 61.0, interets: 1.6, taux: 1.4 },
+            { date: '1972-12-01', value: 76.6, pib: 61.5, interets: 1.6, taux: 1.3 },
+            { date: '1973-03-01', value: 77.5, pib: 62.0, interets: 1.6, taux: 1.2 },
+            { date: '1973-06-01', value: 78.4, pib: 62.5, interets: 1.6, taux: 1.2 },
+            { date: '1973-09-01', value: 79.3, pib: 63.0, interets: 1.6, taux: 1.2 },
+            { date: '1973-12-01', value: 80.2, pib: 63.5, interets: 1.6, taux: 1.1 },
+            { date: '1974-03-01', value: 81.1, pib: 64.0, interets: 1.5, taux: 1.1 },
+            // Valéry Giscard d'Estaing (1974-1981)
+            { date: '1974-06-01', value: 82.0, pib: 64.5, interets: 1.5, taux: 1.1 },
+            { date: '1974-09-01', value: 83.5, pib: 65.0, interets: 1.5, taux: 1.2 },
+            { date: '1974-12-01', value: 85.0, pib: 65.5, interets: 1.6, taux: 1.3 },
+            { date: '1975-03-01', value: 86.5, pib: 66.0, interets: 1.6, taux: 1.4 },
+            { date: '1975-06-01', value: 88.0, pib: 66.5, interets: 1.7, taux: 1.5 },
+            { date: '1975-09-01', value: 89.5, pib: 67.0, interets: 1.7, taux: 1.6 },
+            { date: '1975-12-01', value: 91.0, pib: 67.5, interets: 1.8, taux: 1.7 },
+            { date: '1976-03-01', value: 92.5, pib: 68.0, interets: 1.8, taux: 1.8 },
+            { date: '1976-06-01', value: 94.0, pib: 68.5, interets: 1.9, taux: 1.9 },
+            { date: '1976-09-01', value: 95.5, pib: 69.0, interets: 1.9, taux: 2.0 },
+            { date: '1976-12-01', value: 97.0, pib: 69.5, interets: 2.0, taux: 2.1 },
+            { date: '1977-03-01', value: 98.5, pib: 70.0, interets: 2.0, taux: 2.2 },
+            { date: '1977-06-01', value: 100.0, pib: 70.5, interets: 2.1, taux: 2.3 },
+            { date: '1977-09-01', value: 101.5, pib: 71.0, interets: 2.1, taux: 2.4 },
+            { date: '1977-12-01', value: 103.0, pib: 71.5, interets: 2.2, taux: 2.5 },
+            { date: '1978-03-01', value: 104.5, pib: 72.0, interets: 2.2, taux: 2.6 },
+            { date: '1978-06-01', value: 106.0, pib: 72.5, interets: 2.3, taux: 2.7 },
+            { date: '1978-09-01', value: 107.5, pib: 73.0, interets: 2.3, taux: 2.8 },
+            { date: '1978-12-01', value: 109.0, pib: 73.5, interets: 2.4, taux: 2.9 },
+            { date: '1979-03-01', value: 110.5, pib: 74.0, interets: 2.4, taux: 3.0 },
+            { date: '1979-06-01', value: 112.0, pib: 74.5, interets: 2.5, taux: 3.1 },
+            { date: '1979-09-01', value: 113.5, pib: 75.0, interets: 2.5, taux: 3.2 },
+            { date: '1979-12-01', value: 115.0, pib: 75.5, interets: 2.6, taux: 3.3 },
+            { date: '1980-03-01', value: 116.5, pib: 76.0, interets: 2.6, taux: 3.4 },
+            { date: '1980-06-01', value: 118.0, pib: 76.5, interets: 2.7, taux: 3.5 },
+            { date: '1980-09-01', value: 119.5, pib: 77.0, interets: 2.7, taux: 3.6 },
+            { date: '1980-12-01', value: 121.0, pib: 77.5, interets: 2.8, taux: 3.7 },
+            { date: '1981-03-01', value: 122.5, pib: 78.0, interets: 2.8, taux: 3.8 },
+            // François Mitterrand (1981-1995)
+            { date: '1981-06-01', value: 124.0, pib: 78.5, interets: 2.9, taux: 3.9 },
+            { date: '1981-09-01', value: 126.0, pib: 79.0, interets: 2.9, taux: 4.0 },
+            { date: '1981-12-01', value: 128.0, pib: 79.5, interets: 3.0, taux: 4.1 },
+            { date: '1982-03-01', value: 130.0, pib: 80.0, interets: 3.0, taux: 4.2 },
+            { date: '1982-06-01', value: 132.0, pib: 80.5, interets: 3.1, taux: 4.3 },
+            { date: '1982-09-01', value: 134.0, pib: 81.0, interets: 3.1, taux: 4.4 },
+            { date: '1982-12-01', value: 136.0, pib: 81.5, interets: 3.2, taux: 4.5 },
+            { date: '1983-03-01', value: 138.0, pib: 82.0, interets: 3.2, taux: 4.6 },
+            { date: '1983-06-01', value: 140.0, pib: 82.5, interets: 3.3, taux: 4.7 },
+            { date: '1983-09-01', value: 142.0, pib: 83.0, interets: 3.3, taux: 4.8 },
+            { date: '1983-12-01', value: 144.0, pib: 83.5, interets: 3.4, taux: 4.9 },
+            { date: '1984-03-01', value: 146.0, pib: 84.0, interets: 3.4, taux: 5.0 },
+            { date: '1984-06-01', value: 148.0, pib: 84.5, interets: 3.5, taux: 5.1 },
+            { date: '1984-09-01', value: 150.0, pib: 85.0, interets: 3.5, taux: 5.2 },
+            { date: '1984-12-01', value: 152.0, pib: 85.5, interets: 3.6, taux: 5.3 },
+            { date: '1985-03-01', value: 154.0, pib: 86.0, interets: 3.6, taux: 5.4 },
+            { date: '1985-06-01', value: 156.0, pib: 86.5, interets: 3.7, taux: 5.5 },
+            { date: '1985-09-01', value: 158.0, pib: 87.0, interets: 3.7, taux: 5.6 },
+            { date: '1985-12-01', value: 160.0, pib: 87.5, interets: 3.8, taux: 5.7 },
+            { date: '1986-03-01', value: 162.0, pib: 88.0, interets: 3.8, taux: 5.8 },
+            { date: '1986-06-01', value: 164.0, pib: 88.5, interets: 3.9, taux: 5.9 },
+            { date: '1986-09-01', value: 166.0, pib: 89.0, interets: 3.9, taux: 6.0 },
+            { date: '1986-12-01', value: 168.0, pib: 89.5, interets: 4.0, taux: 6.1 },
+            { date: '1987-03-01', value: 170.0, pib: 90.0, interets: 4.0, taux: 6.2 },
+            { date: '1987-06-01', value: 172.0, pib: 90.5, interets: 4.1, taux: 6.3 },
+            { date: '1987-09-01', value: 174.0, pib: 91.0, interets: 4.1, taux: 6.4 },
+            { date: '1987-12-01', value: 176.0, pib: 91.5, interets: 4.2, taux: 6.5 },
+            { date: '1988-03-01', value: 178.0, pib: 92.0, interets: 4.2, taux: 6.6 },
+            { date: '1988-06-01', value: 180.0, pib: 92.5, interets: 4.3, taux: 6.7 },
+            { date: '1988-09-01', value: 182.0, pib: 93.0, interets: 4.3, taux: 6.8 },
+            { date: '1988-12-01', value: 184.0, pib: 93.5, interets: 4.4, taux: 6.9 },
+            { date: '1989-03-01', value: 186.0, pib: 94.0, interets: 4.4, taux: 7.0 },
+            { date: '1989-06-01', value: 188.0, pib: 94.5, interets: 4.5, taux: 7.1 },
+            { date: '1989-09-01', value: 190.0, pib: 95.0, interets: 4.5, taux: 7.2 },
+            { date: '1989-12-01', value: 192.0, pib: 95.5, interets: 4.6, taux: 7.3 },
+            { date: '1990-03-01', value: 194.0, pib: 96.0, interets: 4.6, taux: 7.4 },
+            { date: '1990-06-01', value: 196.0, pib: 96.5, interets: 4.7, taux: 7.5 },
+            { date: '1990-09-01', value: 198.0, pib: 97.0, interets: 4.7, taux: 7.6 },
+            { date: '1990-12-01', value: 200.0, pib: 97.5, interets: 4.8, taux: 7.7 },
+            { date: '1991-03-01', value: 202.0, pib: 98.0, interets: 4.8, taux: 7.8 },
+            { date: '1991-06-01', value: 204.0, pib: 98.5, interets: 4.9, taux: 7.9 },
+            { date: '1991-09-01', value: 206.0, pib: 99.0, interets: 4.9, taux: 8.0 },
+            { date: '1991-12-01', value: 208.0, pib: 99.5, interets: 5.0, taux: 8.1 },
+            { date: '1992-03-01', value: 210.0, pib: 100.0, interets: 5.0, taux: 8.2 },
+            { date: '1992-06-01', value: 212.0, pib: 100.5, interets: 5.1, taux: 8.3 },
+            { date: '1992-09-01', value: 214.0, pib: 101.0, interets: 5.1, taux: 8.4 },
+            { date: '1992-12-01', value: 216.0, pib: 101.5, interets: 5.2, taux: 8.5 },
+            { date: '1993-03-01', value: 218.0, pib: 102.0, interets: 5.2, taux: 8.6 },
+            { date: '1993-06-01', value: 220.0, pib: 102.5, interets: 5.3, taux: 8.7 },
+            { date: '1993-09-01', value: 222.0, pib: 103.0, interets: 5.3, taux: 8.8 },
+            { date: '1993-12-01', value: 224.0, pib: 103.5, interets: 5.4, taux: 8.9 },
+            { date: '1994-03-01', value: 226.0, pib: 104.0, interets: 5.4, taux: 9.0 },
+            { date: '1994-06-01', value: 228.0, pib: 104.5, interets: 5.5, taux: 9.1 },
+            { date: '1994-09-01', value: 230.0, pib: 105.0, interets: 5.5, taux: 9.2 },
+            { date: '1994-12-01', value: 232.0, pib: 105.5, interets: 5.6, taux: 9.3 },
+            { date: '1995-03-01', value: 234.0, pib: 106.0, interets: 5.6, taux: 9.4 },
+            // Jacques Chirac (1995-2007)
+            { date: '1995-06-01', value: 600.0, pib: 56.0, interets: 43.0, taux: 7.3 },
+            { date: '1995-09-01', value: 641.0, pib: 56.9, interets: 46.5, taux: 7.2 },
+            { date: '1995-12-01', value: 683.6, pib: 57.8, interets: 49.2, taux: 7.2 },
+            { date: '1996-03-01', value: 697.1, pib: 58.1, interets: 48.8, taux: 7.0 },
+            { date: '1996-06-01', value: 705.7, pib: 58.3, interets: 48.7, taux: 6.9 },
+            { date: '1996-09-01', value: 713.1, pib: 58.5, interets: 48.5, taux: 6.8 },
+            { date: '1996-12-01', value: 718.7, pib: 58.6, interets: 48.2, taux: 6.7 },
+            { date: '1997-03-01', value: 729.3, pib: 58.9, interets: 48.1, taux: 6.6 },
+            { date: '1997-06-01', value: 742.8, pib: 59.2, interets: 48.3, taux: 6.5 },
+            { date: '1997-09-01', value: 750.9, pib: 59.4, interets: 48.1, taux: 6.4 },
+            { date: '1997-12-01', value: 756.8, pib: 59.5, interets: 47.7, taux: 6.3 },
+            { date: '1998-03-01', value: 764.4, pib: 59.7, interets: 47.4, taux: 6.2 },
+            { date: '1998-06-01', value: 772.1, pib: 59.9, interets: 47.1, taux: 6.1 },
+            { date: '1998-09-01', value: 781.3, pib: 60.1, interets: 46.9, taux: 6.0 },
+            { date: '1998-12-01', value: 792.7, pib: 60.3, interets: 46.8, taux: 5.9 },
+            { date: '1999-03-01', value: 805.6, pib: 60.6, interets: 46.7, taux: 5.8 },
+            { date: '1999-06-01', value: 817.2, pib: 60.8, interets: 46.6, taux: 5.7 },
+            { date: '1999-09-01', value: 829.4, pib: 61.0, interets: 46.5, taux: 5.6 },
+            { date: '1999-12-01', value: 841.3, pib: 61.2, interets: 46.3, taux: 5.5 },
+            { date: '2000-03-01', value: 852.7, pib: 61.4, interets: 46.0, taux: 5.4 },
+            { date: '2000-06-01', value: 861.9, pib: 61.5, interets: 45.7, taux: 5.3 },
+            { date: '2000-09-01', value: 870.3, pib: 61.6, interets: 45.3, taux: 5.2 },
+            { date: '2000-12-01', value: 879.2, pib: 61.7, interets: 44.8, taux: 5.1 },
+            { date: '2001-03-01', value: 888.6, pib: 61.8, interets: 44.4, taux: 5.0 },
+            { date: '2001-06-01', value: 897.5, pib: 61.9, interets: 44.0, taux: 4.9 },
+            { date: '2001-09-01', value: 908.3, pib: 62.0, interets: 43.6, taux: 4.8 },
+            { date: '2001-12-01', value: 920.7, pib: 62.2, interets: 43.3, taux: 4.7 },
+            { date: '2002-03-01', value: 932.1, pib: 62.4, interets: 42.9, taux: 4.6 },
+            { date: '2002-06-01', value: 944.0, pib: 62.6, interets: 42.5, taux: 4.5 },
+            { date: '2002-09-01', value: 956.8, pib: 62.8, interets: 42.1, taux: 4.4 },
+            { date: '2002-12-01', value: 968.9, pib: 63.0, interets: 41.7, taux: 4.3 },
+            { date: '2003-03-01', value: 982.1, pib: 63.3, interets: 41.2, taux: 4.2 },
+            { date: '2003-06-01', value: 995.4, pib: 63.6, interets: 40.8, taux: 4.1 },
+            { date: '2003-09-01', value: 1009.7, pib: 63.9, interets: 40.4, taux: 4.0 },
+            { date: '2003-12-01', value: 1024.3, pib: 64.2, interets: 39.9, taux: 3.9 },
+            { date: '2004-03-01', value: 1038.2, pib: 64.5, interets: 39.5, taux: 3.8 },
+            { date: '2004-06-01', value: 1051.6, pib: 64.8, interets: 38.9, taux: 3.7 },
+            { date: '2004-09-01', value: 1065.9, pib: 65.1, interets: 38.4, taux: 3.6 },
+            { date: '2004-12-01', value: 1080.8, pib: 65.4, interets: 37.8, taux: 3.5 },
+            { date: '2005-03-01', value: 1096.2, pib: 65.7, interets: 37.3, taux: 3.4 },
+            { date: '2005-06-01', value: 1112.5, pib: 66.0, interets: 36.7, taux: 3.3 },
+            { date: '2005-09-01', value: 1130.1, pib: 66.3, interets: 36.2, taux: 3.2 },
+            { date: '2005-12-01', value: 1146.3, pib: 66.6, interets: 35.5, taux: 3.1 },
+            { date: '2006-03-01', value: 1163.7, pib: 66.9, interets: 34.9, taux: 3.0 },
+            { date: '2006-06-01', value: 1181.2, pib: 67.2, interets: 35.4, taux: 3.0 },
+            { date: '2006-09-01', value: 1199.8, pib: 67.5, interets: 34.8, taux: 2.9 },
+            { date: '2006-12-01', value: 1218.5, pib: 67.8, interets: 35.3, taux: 2.9 },
+            { date: '2007-03-01', value: 1238.2, pib: 68.1, interets: 34.7, taux: 2.8 },
+            // Nicolas Sarkozy (2007-2012)
+            { date: '2007-06-01', value: 1258.7, pib: 68.4, interets: 35.2, taux: 2.8 },
+            { date: '2007-09-01', value: 1280.3, pib: 68.7, interets: 34.6, taux: 2.7 },
+            { date: '2007-12-01', value: 1302.7, pib: 69.0, interets: 35.2, taux: 2.7 },
+            { date: '2008-03-01', value: 1326.0, pib: 69.3, interets: 34.5, taux: 2.6 },
+            { date: '2008-06-01', value: 1350.2, pib: 69.6, interets: 35.1, taux: 2.6 },
+            { date: '2008-09-01', value: 1375.5, pib: 69.9, interets: 35.8, taux: 2.6 },
+            { date: '2008-12-01', value: 1402.3, pib: 70.2, interets: 35.1, taux: 2.5 },
+            { date: '2009-03-01', value: 1430.8, pib: 70.5, interets: 35.8, taux: 2.5 },
+            { date: '2009-06-01', value: 1460.5, pib: 70.8, interets: 36.5, taux: 2.5 },
+            { date: '2009-09-01', value: 1492.7, pib: 71.1, interets: 35.8, taux: 2.4 },
+            { date: '2009-12-01', value: 1526.2, pib: 71.4, interets: 36.6, taux: 2.4 },
+            { date: '2010-03-01', value: 1560.8, pib: 71.7, interets: 37.5, taux: 2.4 },
+            { date: '2010-06-01', value: 1595.6, pib: 72.0, interets: 38.3, taux: 2.4 },
+            { date: '2010-09-01', value: 1631.5, pib: 72.3, interets: 37.5, taux: 2.3 },
+            { date: '2010-12-01', value: 1668.9, pib: 72.6, interets: 38.4, taux: 2.3 },
+            { date: '2011-03-01', value: 1707.6, pib: 72.9, interets: 39.3, taux: 2.3 },
+            { date: '2011-06-01', value: 1747.8, pib: 73.2, interets: 40.2, taux: 2.3 },
+            { date: '2011-09-01', value: 1789.3, pib: 73.5, interets: 39.4, taux: 2.2 },
+            { date: '2011-12-01', value: 1832.4, pib: 73.8, interets: 40.3, taux: 2.2 },
+            { date: '2012-03-01', value: 1876.8, pib: 74.1, interets: 41.3, taux: 2.2 },
+            // François Hollande (2012-2017)
+            { date: '2012-06-01', value: 1922.4, pib: 74.4, interets: 42.3, taux: 2.2 },
+            { date: '2012-09-01', value: 1969.3, pib: 74.7, interets: 41.4, taux: 2.1 },
+            { date: '2012-12-01', value: 2017.5, pib: 75.0, interets: 42.4, taux: 2.1 },
+            { date: '2013-03-01', value: 2066.8, pib: 75.3, interets: 43.4, taux: 2.1 },
+            { date: '2013-06-01', value: 2116.2, pib: 75.6, interets: 44.4, taux: 2.1 },
+            { date: '2013-09-01', value: 2165.9, pib: 75.9, interets: 45.5, taux: 2.1 },
+            { date: '2013-12-01', value: 2215.8, pib: 76.2, interets: 44.3, taux: 2.0 },
+            { date: '2014-03-01', value: 2264.7, pib: 76.5, interets: 45.3, taux: 2.0 },
+            { date: '2014-06-01', value: 2312.4, pib: 76.8, interets: 46.2, taux: 2.0 },
+            { date: '2014-09-01', value: 2358.7, pib: 77.1, interets: 47.2, taux: 2.0 },
+            { date: '2014-12-01', value: 2404.5, pib: 77.4, interets: 45.7, taux: 1.9 },
+            { date: '2015-03-01', value: 2449.8, pib: 77.7, interets: 46.5, taux: 1.9 },
+            { date: '2015-06-01', value: 2494.6, pib: 78.0, interets: 47.4, taux: 1.9 },
+            { date: '2015-09-01', value: 2538.7, pib: 78.3, interets: 45.7, taux: 1.8 },
+            { date: '2015-12-01', value: 2582.2, pib: 78.6, interets: 46.5, taux: 1.8 },
+            { date: '2016-03-01', value: 2625.1, pib: 78.9, interets: 47.3, taux: 1.8 },
+            { date: '2016-06-01', value: 2667.5, pib: 79.2, interets: 48.0, taux: 1.8 },
+            { date: '2016-09-01', value: 2709.3, pib: 79.5, interets: 46.1, taux: 1.7 },
+            { date: '2016-12-01', value: 2751.6, pib: 79.8, interets: 46.8, taux: 1.7 },
+            { date: '2017-03-01', value: 2793.9, pib: 80.1, interets: 47.5, taux: 1.7 },
+            // Emmanuel Macron (2017-2026)
+            { date: '2017-06-01', value: 2835.4, pib: 80.4, interets: 48.2, taux: 1.7 },
+            { date: '2017-09-01', value: 2876.8, pib: 80.7, interets: 46.0, taux: 1.6 },
+            { date: '2017-12-01', value: 2918.3, pib: 81.0, interets: 46.7, taux: 1.6 },
+            { date: '2018-03-01', value: 2959.6, pib: 81.3, interets: 47.4, taux: 1.6 },
+            { date: '2018-06-01', value: 3000.8, pib: 81.6, interets: 45.0, taux: 1.5 },
+            { date: '2018-09-01', value: 3041.4, pib: 81.9, interets: 45.6, taux: 1.5 },
+            { date: '2018-12-01', value: 3081.6, pib: 82.2, interets: 46.2, taux: 1.5 },
+            { date: '2019-03-01', value: 3121.6, pib: 82.5, interets: 46.8, taux: 1.5 },
+            { date: '2019-06-01', value: 3161.2, pib: 82.8, interets: 44.3, taux: 1.4 },
+            { date: '2019-09-01', value: 3200.4, pib: 83.1, interets: 44.8, taux: 1.4 },
+            { date: '2019-12-01', value: 3239.1, pib: 83.4, interets: 45.3, taux: 1.4 },
+            { date: '2020-03-01', value: 3277.8, pib: 83.7, interets: 45.9, taux: 1.4 },
+            { date: '2020-06-01', value: 3316.2, pib: 84.0, interets: 43.1, taux: 1.3 },
+            { date: '2020-09-01', value: 3354.1, pib: 84.3, interets: 43.6, taux: 1.3 },
+            { date: '2020-12-01', value: 3391.5, pib: 84.6, interets: 44.1, taux: 1.3 },
+            { date: '2021-03-01', value: 3428.4, pib: 84.9, interets: 44.6, taux: 1.3 },
+            { date: '2021-06-01', value: 3464.2, pib: 85.2, interets: 41.6, taux: 1.2 },
+            { date: '2021-09-01', value: 3499.8, pib: 85.5, interets: 42.0, taux: 1.2 },
+            { date: '2021-12-01', value: 3534.2, pib: 85.8, interets: 42.4, taux: 1.2 },
+            { date: '2022-03-01', value: 3567.1, pib: 86.1, interets: 42.8, taux: 1.2 },
+            { date: '2022-06-01', value: 3598.5, pib: 86.4, interets: 43.2, taux: 1.2 },
+            { date: '2022-09-01', value: 3628.3, pib: 86.7, interets: 43.5, taux: 1.2 },
+            { date: '2022-12-01', value: 3656.8, pib: 87.0, interets: 43.9, taux: 1.2 },
+            { date: '2023-03-01', value: 3683.9, pib: 87.3, interets: 40.5, taux: 1.1 },
+            { date: '2023-06-01', value: 3709.5, pib: 87.6, interets: 40.8, taux: 1.1 },
+            { date: '2023-09-01', value: 3733.2, pib: 87.9, interets: 41.1, taux: 1.1 },
+            { date: '2023-12-01', value: 3755.3, pib: 88.2, interets: 41.3, taux: 1.1 },
+            { date: '2024-03-01', value: 3776.1, pib: 88.5, interets: 41.5, taux: 1.1 },
+            { date: '2024-06-01', value: 3795.4, pib: 88.8, interets: 37.9, taux: 1.0 },
+            { date: '2024-09-01', value: 3813.6, pib: 89.1, interets: 38.1, taux: 1.0 },
+            { date: '2024-12-01', value: 3830.5, pib: 89.4, interets: 38.3, taux: 1.0 },
+            { date: '2025-03-01', value: 3346.3, pib: 87.5, interets: 33.5, taux: 1.0 },
+            { date: '2025-06-01', value: 3417.2, pib: 88.0, interets: 30.8, taux: 0.9 },
+            { date: '2025-09-01', value: 3484.1, pib: 88.5, interets: 31.4, taux: 0.9 },
+            { date: '2025-12-01', value: 3460.5, pib: 88.0, interets: 31.1, taux: 0.9 },
+            { date: '2026-03-01', value: 3536.1, pib: 117.5, interets: 31.8, taux: 0.9 }
+        ];
+
+        // ------------------------------------------------------------
+        // 2. PRÉSIDENTS (avec orientation politique)
+        // ------------------------------------------------------------
+        const presidents = [
+            { name: 'Charles de Gaulle', start: '1959-01-08', end: '1969-04-28', color: '#0b1e3a', political: 'Gaulliste (centre-droit)' },
+            { name: 'Georges Pompidou', start: '1969-06-20', end: '1974-04-02', color: '#0055a4', political: 'Gaulliste (droite)' },
+            { name: "Valéry Giscard d'Estaing", start: '1974-05-27', end: '1981-05-21', color: '#d1d5db', political: 'Centre-droit (UDF)' },
+            { name: 'François Mitterrand', start: '1981-05-21', end: '1995-05-17', color: '#ef4135', political: 'Socialiste (gauche)' },
+            { name: 'Jacques Chirac', start: '1995-05-17', end: '2007-05-16', color: '#0b1e3a', political: 'Gaulliste (droite)' },
+            { name: 'Nicolas Sarkozy', start: '2007-05-16', end: '2012-05-15', color: '#0055a4', political: 'Droite (UMP)' },
+            { name: 'François Hollande', start: '2012-05-15', end: '2017-05-14', color: '#d1d5db', political: 'Socialiste (gauche)' },
+            { name: 'Emmanuel Macron', start: '2017-05-14', end: '2026-08-22', color: '#ef4135', political: 'Centre (LREM/ Renaissance)' }
+        ];
+
+        // ------------------------------------------------------------
+        // 3. FONCTIONS
+        // ------------------------------------------------------------
+        function formatQuarter(dateStr) {
+            const d = new Date(dateStr);
+            const y = d.getFullYear();
+            const m = d.getMonth();
+            const q = m <= 2 ? 'T1' : m <= 5 ? 'T2' : m <= 8 ? 'T3' : 'T4';
+            return `${y} ${q}`;
+        }
+
+        function getPresidentForDate(dateStr) {
+            const d = new Date(dateStr);
+            for (let p of presidents) {
+                const start = new Date(p.start);
+                const end = new Date(p.end);
+                if (d >= start && d <= end) return p.name;
+            }
+            return 'Inconnu';
+        }
+
+        function getPresidentColor(name) {
+            const map = {
+                'Charles de Gaulle': '#0b1e3a',
+                'Georges Pompidou': '#0055a4',
+                "Valéry Giscard d'Estaing": '#d1d5db',
+                'François Mitterrand': '#ef4135',
+                'Jacques Chirac': '#0b1e3a',
+                'Nicolas Sarkozy': '#0055a4',
+                'François Hollande': '#d1d5db',
+                'Emmanuel Macron': '#ef4135'
+            };
+            return map[name] || '#94a3b8';
+        }
+
+        function getPresidentStats() {
+            const stats = [];
+            for (let p of presidents) {
+                const startDate = new Date(p.start);
+                const endDate = new Date(p.end);
+                const data = debtData.filter(d => {
+                    const dDate = new Date(d.date);
+                    return dDate >= startDate && dDate <= endDate;
+                });
+                if (data.length === 0) continue;
+                const values = data.map(d => d.value);
+                const ratios = data.map(d => d.pib);
+                const interets = data.map(d => d.interets);
+                const startVal = values[0];
+                const endVal = values[values.length - 1];
+                const growth = endVal - startVal;
+                const growthPct = (growth / startVal) * 100;
+                const avgRatio = ratios.reduce((a, b) => a + b, 0) / ratios.length;
+                const totalInterets = interets.reduce((a, b) => a + b, 0);
+
+                stats.push({
+                    name: p.name,
+                    political: p.political,
+                    start: p.start,
+                    end: p.end,
+                    quarters: data.length,
+                    startVal, endVal, growth, growthPct,
+                    avgRatio,
+                    totalInterets,
+                    color: getPresidentColor(p.name)
+                });
+            }
+            return stats;
+        }
+
+        // ------------------------------------------------------------
+        // 4. STATISTIQUES (ajout de la conversion en francs)
+        // ------------------------------------------------------------
+        function renderStats() {
+            const values = debtData.map(d => d.value);
+            const latest = values[values.length - 1];
+            const first = values[0];
+            const tauxConversion = 6.55957; // 1 € = 6,55957 FRF
+
+            const presStats = getPresidentStats();
+            const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
+            const worstGrowth = presStats.reduce((a, b) => a.growthPct < b.growthPct ? a : b);
+            const last = debtData[debtData.length - 1];
+            const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
+
+            const stats = [
+                { label: 'Dette actuelle', value: latest.toFixed(1), unit: 'Md€', highlight: true },
+                { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
+                { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
+                { label: 'Dette/PIB actuel', value: last.pib.toFixed(1), unit: '%' },
+                { label: 'Intérêts totaux', value: (totalInterets/1000).toFixed(1), unit: 'kMd€' },
+                { label: 'Trimestres', value: values.length, unit: '' },
+                // Nouvelle ligne : dette en francs
+                { label: 'Dette actuelle (FRF)', value: (latest * tauxConversion).toFixed(0), unit: 'MdF' }
+            ];
+
+            const container = document.getElementById('statsAdvanced');
+            container.innerHTML = stats.map((s, i) => `
+                <div class="stat-card ${s.highlight ? 'highlight' : ''}">
+                    <div class="stat-label">${s.label}</div>
+                    <div class="stat-value">${s.value} <small>${s.unit}</small></div>
+                    ${s.sub ? `<div class="stat-change">${s.sub}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // ------------------------------------------------------------
+        // 5. GRAPHIQUES (inchangés)
+        // ------------------------------------------------------------
+        const labels = debtData.map(d => d.date);
+
+        const ctx1 = document.getElementById('debtChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Dette (Md€)',
+                    data: debtData.map(d => d.value),
+                    borderColor: '#0055a4',
+                    backgroundColor: 'rgba(0,85,164,0.05)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Dette : ${ctx.parsed.y.toFixed(1)} Md€` } } },
+                scales: {
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 }, callback: (v,i) => i % 4 === 0 ? labels[i].substring(0,4) : '' }, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('ratioChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Dette/PIB (%)',
+                    data: debtData.map(d => d.pib),
+                    borderColor: '#ef4135',
+                    backgroundColor: 'rgba(239,65,53,0.05)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Dette/PIB : ${ctx.parsed.y.toFixed(1)}%` } } },
+                scales: {
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 }, callback: (v,i) => i % 4 === 0 ? labels[i].substring(0,4) : '' }, grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v+'%' } }
+                }
+            }
+        });
+
+        const presStats = getPresidentStats();
+        const ctx3 = document.getElementById('presidentChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
+                datasets: [{
+                    label: 'Dette fin de mandat (Md€)',
+                    data: presStats.map(p => parseFloat(p.endVal.toFixed(1))),
+                    backgroundColor: presStats.map(p => p.color + '80'),
+                    borderColor: presStats.map(p => p.color),
+                    borderWidth: 2,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `Dette : ${ctx.parsed.y.toFixed(1)} Md€`,
+                            title: items => presStats[items[0].dataIndex].name
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } },
+                    x: { grid: { display: false }, ticks: { font: { size: 7 } } }
+                }
+            }
+        });
+
+        // ------------------------------------------------------------
+        // 6. PRÉSIDENTS (avec orientation politique)
+        // ------------------------------------------------------------
+        function renderPresidents() {
+            const grid = document.getElementById('presidentsGrid');
+            const stats = getPresidentStats();
+
+            grid.innerHTML = stats.map(p => {
+                const changeColor = p.growth >= 0 ? '#ef4135' : '#0055a4';
+                return `
+                    <div class="president-card">
+                        <div class="name">${p.name}</div>
+                        <div class="dates">
+                            ${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}
+                            <span style="color:#94a3b8;font-weight:400;"> · ${p.quarters} trim.</span>
+                        </div>
+                        <div class="political">${p.political}</div>
+                        <div class="debt-info">
+                            <span class="start">Dette : ${p.startVal.toFixed(1)} → ${p.endVal.toFixed(1)} Md€</span><br/>
+                            <span class="change" style="color:${changeColor};">
+                                Évolution : ${p.growth >= 0 ? '+' : ''}${p.growth.toFixed(1)} Md€ (${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(1)}%)
+                            </span><br/>
+                            <span class="stat">
+                                📊 Dette/PIB moyen : <strong>${p.avgRatio.toFixed(1)}%</strong>
+                            </span><br/>
+                            <span class="stat">
+                                💰 Intérêts totaux : <strong>${(p.totalInterets/1000).toFixed(2)} kMd€</strong>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ------------------------------------------------------------
+        // 7. TABLEAU (inchangé)
+        // ------------------------------------------------------------
+        function renderTable(data, sort = 'date-asc', search = '') {
+            const tbody = document.getElementById('tableBody');
+            let filtered = data;
+
+            if (search) {
+                filtered = filtered.filter(d => {
+                    const q = formatQuarter(d.date);
+                    return q.includes(search) || d.date.includes(search) || getPresidentForDate(d.date).toLowerCase().includes(search.toLowerCase());
+                });
+            }
+
+            const sorted = [...filtered];
+            switch (sort) {
+                case 'date-desc': sorted.reverse(); break;
+                case 'debt-asc': sorted.sort((a, b) => a.value - b.value); break;
+                case 'debt-desc': sorted.sort((a, b) => b.value - a.value); break;
+                default: break;
+            }
+
+            tbody.innerHTML = sorted.map((d) => {
+                const dataIdx = debtData.indexOf(d);
+                const highlight = dataIdx === debtData.length - 1;
+                const pres = getPresidentForDate(d.date);
+
+                return `
+                    <tr class="${highlight ? 'highlight-row' : ''}">
+                        <td><strong>${formatQuarter(d.date)}</strong></td>
+                        <td>${pres}</td>
+                        <td>${d.value.toFixed(1)}</td>
+                        <td>${d.pib.toFixed(1)}%</td>
+                        <td>${d.interets.toFixed(1)}</td>
+                        <td>${d.taux.toFixed(2)}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+
+        function updateTable() {
+            renderTable(debtData, sortSelect.value, searchInput.value);
+        }
+
+        searchInput.addEventListener('input', updateTable);
+        sortSelect.addEventListener('change', updateTable);
+
+        // ------------------------------------------------------------
+        // 8. INIT
+        // ------------------------------------------------------------
+        renderStats();
+        renderPresidents();
+        renderTable(debtData, 'date-asc', '');
+
+        console.log('🇫🇷 Dashboard complet avec orientation politique et conversion en francs');
+        console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
+        const last = debtData[debtData.length - 1];
+        const tauxConversion = 6.55957;
+        console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * tauxConversion).toFixed(0)} MdF)`);
+    </script>
+</body>
+</html>
