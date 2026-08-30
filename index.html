@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Finances publiques · 8 présidents · € & FRF · Ratio comparatif</title>
+    <title>Finances publiques · 8 présidents · € & FRF · Analyse trimestrielle</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
@@ -253,7 +253,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
         table th {
             text-align: left;
@@ -282,7 +282,7 @@
             border-left: none;
             border-right: 4px solid #ef4135;
         }
-        .table-container { max-height: 350px; overflow-y: auto; }
+        .table-container { max-height: 400px; overflow-y: auto; }
         .table-container::-webkit-scrollbar { width: 6px; }
         .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .table-container::-webkit-scrollbar-thumb { background: #0055a4; border-radius: 4px; }
@@ -356,7 +356,7 @@
             </div>
         </div>
 
-        <!-- NOUVEAU : Comparatif des présidents (ratios) -->
+        <!-- Comparatif des présidents (ratios annuels) -->
         <div style="margin-bottom:24px;">
             <h2 style="font-size:1rem;font-weight:700;color:#0b1e3a;padding:0 4px 12px;">
                 <i class="fas fa-chart-simple" style="color:#0055a4;"></i>
@@ -378,6 +378,14 @@
             </div>
         </div>
 
+        <!-- Graphique du taux effectif -->
+        <div style="margin-bottom:24px;">
+            <div class="chart-container">
+                <div class="chart-header"><h2><span class="blue">Taux effectif</span> (intérêts / dette) · <span class="red">trimestriel</span></h2></div>
+                <div class="chart-wrapper-sm"><canvas id="tauxEffectifChart"></canvas></div>
+            </div>
+        </div>
+
         <!-- Présidents -->
         <div class="presidents-section">
             <h2>
@@ -387,7 +395,7 @@
             <div class="presidents-grid" id="presidentsGrid"></div>
         </div>
 
-        <!-- Tableau -->
+        <!-- Tableau avec toutes les colonnes -->
         <div class="table-section">
             <h2>
                 <i class="fas fa-table" style="color:#0055a4;"></i>
@@ -415,6 +423,10 @@
                             <th>Intérêts (Md€)</th>
                             <th>Intérêts (MdF)</th>
                             <th>Taux (%)</th>
+                            <th>Dette/hab. (€)</th>
+                            <th>Taux effectif (%)</th>
+                            <th>Var. trim.</th>
+                            <th>Var. annuelle</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -736,9 +748,10 @@
         ];
 
         // ------------------------------------------------------------
-        // 3. FONCTIONS UTILITAIRES
+        // 3. CONSTANTES ET FONCTIONS UTILITAIRES
         // ------------------------------------------------------------
         const CONVERSION = 6.55957;
+        const POPULATION = 67; // millions d'habitants
 
         function formatQuarter(dateStr) {
             const d = new Date(dateStr);
@@ -823,7 +836,7 @@
             const values = debtData.map(d => d.value);
             const latest = values[values.length - 1];
             const last = debtData[debtData.length - 1];
-            const totalInterets = debtData.reduce((a,d) => a + d.interets, 0);
+            const totalInterets = debtData.reduce((a, d) => a + d.interets, 0);
             const presStats = getPresidentStats();
             const bestGrowth = presStats.reduce((a, b) => a.growthPct > b.growthPct ? a : b);
             const worstGrowth = presStats.reduce((a, b) => a.growthPct < b.growthPct ? a : b);
@@ -834,19 +847,19 @@
                 { label: '⬆️ Plus forte hausse', value: bestGrowth.name, unit: `${bestGrowth.growthPct.toFixed(1)}%` },
                 { label: '⬇️ Plus faible hausse', value: worstGrowth.name, unit: `${worstGrowth.growthPct.toFixed(1)}%` },
                 { label: 'Dette/PIB actuel', value: last.pib.toFixed(1), unit: '%' },
-                { label: 'Intérêts totaux (€)', value: (totalInterets/1000).toFixed(2), unit: 'kMd€' },
-                { label: 'Intérêts totaux (FRF)', value: ((totalInterets * CONVERSION)/1000).toFixed(2), unit: 'kMdF' },
+                { label: 'Intérêts totaux (€)', value: (totalInterets / 1000).toFixed(2), unit: 'kMd€' },
+                { label: 'Intérêts totaux (FRF)', value: ((totalInterets * CONVERSION) / 1000).toFixed(2), unit: 'kMdF' },
                 { label: 'Trimestres', value: values.length, unit: '' }
             ];
 
             const container = document.getElementById('statsAdvanced');
             container.innerHTML = stats.map((s, i) => `
-                <div class="stat-card ${s.highlight ? 'highlight' : ''}">
-                    <div class="stat-label">${s.label}</div>
-                    <div class="stat-value">${s.value} <small>${s.unit}</small></div>
-                    ${s.sub ? `<div class="stat-change">${s.sub}</div>` : ''}
-                </div>
-            `).join('');
+                    <div class="stat-card ${s.highlight ? 'highlight' : ''}">
+                        <div class="stat-label">${s.label}</div>
+                        <div class="stat-value">${s.value} <small>${s.unit}</small></div>
+                        ${s.sub ? `<div class="stat-change">${s.sub}</div>` : ''}
+                    </div>
+                `).join('');
         }
 
         // ------------------------------------------------------------
@@ -858,32 +871,32 @@
         new Chart(document.getElementById('debtChart'), {
             type: 'line',
             data: { labels, datasets: [{ label: 'Dette (Md€)', data: debtData.map(d => d.value), borderColor: '#0055a4', backgroundColor: 'rgba(0,85,164,0.05)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v } } } }
         });
 
         // Ratio Dette/PIB
         new Chart(document.getElementById('ratioChart'), {
             type: 'line',
             data: { labels, datasets: [{ label: 'Dette/PIB (%)', data: debtData.map(d => d.pib), borderColor: '#ef4135', backgroundColor: 'rgba(239,65,53,0.05)', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v+'%' } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } }, y: { beginAtZero: true, ticks: { callback: v => v + '%' } } } }
         });
 
         // Dette par président (fin de mandat)
         const presStats = getPresidentStats();
         new Chart(document.getElementById('presidentChart'), {
             type: 'bar',
-            data: { labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')), datasets: [{ label: 'Dette fin de mandat (Md€)', data: presStats.map(p => parseFloat(p.endVal.toFixed(1))), backgroundColor: presStats.map(p => p.color + '80'), borderColor: presStats.map(p => p.color), borderWidth: 2, borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } }, x: { grid: { display: false } } } }
+            data: { labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')), datasets: [{ label: 'Dette fin de mandat (Md€)', data: presStats.map(p => parseFloat(p.endVal.toFixed(1))), backgroundColor: presStats.map(p => p.color + '80'), borderColor: presStats.map(p => p.color), borderWidth: 2, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v } }, x: { grid: { display: false } } } }
         });
 
         // ------------------------------------------------------------
-        // 6. NOUVEAUX GRAPHIQUES COMPARATIFS (RATIOS ANNUELS)
+        // 6. GRAPHIQUES COMPARATIFS (RATIOS ANNUELS)
         // ------------------------------------------------------------
         // 6a. Hausse annuelle de la dette (Md€)
         new Chart(document.getElementById('annualDebtChart'), {
             type: 'bar',
             data: {
-                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
+                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
                 datasets: [{
                     label: 'Hausse annuelle (Md€)',
                     data: presStats.map(p => parseFloat(p.avgAnnualGrowth.toFixed(2))),
@@ -905,7 +918,7 @@
         new Chart(document.getElementById('annualRatioChart'), {
             type: 'bar',
             data: {
-                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
+                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
                 datasets: [{
                     label: 'Hausse annuelle Dette/PIB (pts)',
                     data: presStats.map(p => parseFloat(p.avgAnnualRatioGrowth.toFixed(2))),
@@ -927,10 +940,10 @@
         new Chart(document.getElementById('interetsChart'), {
             type: 'bar',
             data: {
-                labels: presStats.map(p => p.name.split(' ').slice(0,2).join(' ')),
+                labels: presStats.map(p => p.name.split(' ').slice(0, 2).join(' ')),
                 datasets: [{
                     label: 'Intérêts totaux (Md€)',
-                    data: presStats.map(p => parseFloat((p.totalInterets/1000).toFixed(2))),
+                    data: presStats.map(p => parseFloat((p.totalInterets / 1000).toFixed(2))),
                     backgroundColor: presStats.map(p => p.color + '80'),
                     borderColor: presStats.map(p => p.color),
                     borderWidth: 2,
@@ -946,7 +959,36 @@
         });
 
         // ------------------------------------------------------------
-        // 7. PRÉSIDENTS (cartes avec ratio comparatif)
+        // 7. GRAPHIQUE DU TAUX EFFECTIF
+        // ------------------------------------------------------------
+        new Chart(document.getElementById('tauxEffectifChart'), {
+            type: 'line',
+            data: {
+                labels: debtData.map(d => d.date),
+                datasets: [{
+                    label: 'Taux effectif (%)',
+                    data: debtData.map(d => (d.interets / d.value) * 100),
+                    borderColor: '#f8961e',
+                    backgroundColor: 'rgba(248, 150, 30, 0.05)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${ctx.parsed.y.toFixed(2)}%` } } },
+                scales: {
+                    x: { type: 'category', ticks: { maxTicksLimit: 15, font: { size: 6 } } },
+                    y: { beginAtZero: true, ticks: { callback: v => v.toFixed(1) + '%' } }
+                }
+            }
+        });
+
+        // ------------------------------------------------------------
+        // 8. PRÉSIDENTS (cartes avec ratio comparatif)
         // ------------------------------------------------------------
         function renderPresidents() {
             const grid = document.getElementById('presidentsGrid');
@@ -956,36 +998,36 @@
                 const changeColor = p.growth >= 0 ? '#ef4135' : '#0055a4';
                 const annualFrf = p.avgAnnualGrowth * CONVERSION;
                 return `
-                    <div class="president-card">
-                        <div class="name">${p.name}</div>
-                        <div class="dates">
-                            ${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}
-                            <span style="color:#94a3b8;font-weight:400;"> · ${p.quarters} trim.</span>
+                        <div class="president-card">
+                            <div class="name">${p.name}</div>
+                            <div class="dates">
+                                ${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}
+                                <span style="color:#94a3b8;font-weight:400;"> · ${p.quarters} trim.</span>
+                            </div>
+                            <div class="political">${p.political}</div>
+                            <div class="debt-info">
+                                <span class="start">Dette : ${p.startVal.toFixed(1)} → ${p.endVal.toFixed(1)} Md€</span><br/>
+                                <span class="change" style="color:${changeColor};">
+                                    Évolution : ${p.growth >= 0 ? '+' : ''}${p.growth.toFixed(1)} Md€ (${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(1)}%)
+                                </span><br/>
+                                <span class="stat">
+                                    📊 Dette/PIB moyen : <strong>${p.avgRatio.toFixed(1)}%</strong>
+                                </span><br/>
+                                <span class="stat">
+                                    💰 Intérêts totaux : <strong>${(p.totalInterets / 1000).toFixed(2)} kMd€</strong>
+                                </span><br/>
+                                <span class="stat ratio">
+                                    📈 Hausse annuelle : <strong>${p.avgAnnualGrowth.toFixed(2)} Md€</strong>
+                                    <span style="color:#64748b;">(${(annualFrf).toFixed(2)} MdF)</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="political">${p.political}</div>
-                        <div class="debt-info">
-                            <span class="start">Dette : ${p.startVal.toFixed(1)} → ${p.endVal.toFixed(1)} Md€</span><br/>
-                            <span class="change" style="color:${changeColor};">
-                                Évolution : ${p.growth >= 0 ? '+' : ''}${p.growth.toFixed(1)} Md€ (${p.growthPct >= 0 ? '+' : ''}${p.growthPct.toFixed(1)}%)
-                            </span><br/>
-                            <span class="stat">
-                                📊 Dette/PIB moyen : <strong>${p.avgRatio.toFixed(1)}%</strong>
-                            </span><br/>
-                            <span class="stat">
-                                💰 Intérêts totaux : <strong>${(p.totalInterets/1000).toFixed(2)} kMd€</strong>
-                            </span><br/>
-                            <span class="stat ratio">
-                                📈 Hausse annuelle : <strong>${p.avgAnnualGrowth.toFixed(2)} Md€</strong>
-                                <span style="color:#64748b;">(${(annualFrf).toFixed(2)} MdF)</span>
-                            </span>
-                        </div>
-                    </div>
-                `;
+                    `;
             }).join('');
         }
 
         // ------------------------------------------------------------
-        // 8. TABLEAU
+        // 9. TABLEAU AVEC INDICATEURS SUPPLÉMENTAIRES
         // ------------------------------------------------------------
         function renderTable(data, sort = 'date-asc', search = '') {
             const tbody = document.getElementById('tableBody');
@@ -1000,51 +1042,93 @@
 
             const sorted = [...filtered];
             switch (sort) {
-                case 'date-desc': sorted.reverse(); break;
-                case 'debt-asc': sorted.sort((a, b) => a.value - b.value); break;
-                case 'debt-desc': sorted.sort((a, b) => b.value - a.value); break;
-                default: break;
+                case 'date-desc':
+                    sorted.reverse();
+                    break;
+                case 'debt-asc':
+                    sorted.sort((a, b) => a.value - b.value);
+                    break;
+                case 'debt-desc':
+                    sorted.sort((a, b) => b.value - a.value);
+                    break;
+                default:
+                    break;
             }
 
-            tbody.innerHTML = sorted.map((d) => {
+            // Calcul des variations
+            const withVariations = sorted.map((d, index, arr) => {
+                const prev = index > 0 ? arr[index - 1] : null;
+                const varTrim = prev ? ((d.value - prev.value) / prev.value * 100) : null;
+                // Glissement annuel
+                const currentDate = new Date(d.date);
+                const prevYearDate = new Date(currentDate);
+                prevYearDate.setFullYear(currentDate.getFullYear() - 1);
+                const prevYearStr = prevYearDate.toISOString().slice(0, 10);
+                const prevYearData = arr.find(item => item.date === prevYearStr);
+                const varAnnuelle = prevYearData ? ((d.value - prevYearData.value) / prevYearData.value * 100) : null;
+                return { ...d, varTrim, varAnnuelle };
+            });
+
+            const taux = CONVERSION;
+
+            tbody.innerHTML = withVariations.map((d) => {
                 const dataIdx = debtData.indexOf(d);
                 const highlight = dataIdx === debtData.length - 1;
                 const pres = getPresidentForDate(d.date);
-                const detteFrf = d.value * CONVERSION;
-                const interetsFrf = d.interets * CONVERSION;
+                const detteFrf = d.value * taux;
+                const interetsFrf = d.interets * taux;
+                const detteParHabitant = (d.value * 1000) / POPULATION; // en euros
+                const tauxEffectif = (d.interets / d.value) * 100; // en %
+
                 return `
-                    <tr class="${highlight ? 'highlight-row' : ''}">
-                        <td><strong>${formatQuarter(d.date)}</strong></td>
-                        <td>${pres}</td>
-                        <td>${d.value.toFixed(1)}</td>
-                        <td>${detteFrf.toFixed(1)}</td>
-                        <td>${d.pib.toFixed(1)}%</td>
-                        <td>${d.interets.toFixed(1)}</td>
-                        <td>${interetsFrf.toFixed(1)}</td>
-                        <td>${d.taux.toFixed(2)}%</td>
-                    </tr>
-                `;
+                        <tr class="${highlight ? 'highlight-row' : ''}">
+                            <td><strong>${formatQuarter(d.date)}</strong></td>
+                            <td>${pres}</td>
+                            <td>${d.value.toFixed(1)}</td>
+                            <td>${detteFrf.toFixed(1)}</td>
+                            <td>${d.pib.toFixed(1)}%</td>
+                            <td>${d.interets.toFixed(1)}</td>
+                            <td>${interetsFrf.toFixed(1)}</td>
+                            <td>${d.taux.toFixed(2)}%</td>
+                            <td>${detteParHabitant.toFixed(0)}</td>
+                            <td>${tauxEffectif.toFixed(2)}%</td>
+                            <td>${d.varTrim !== null ? (d.varTrim >= 0 ? '+' : '') + d.varTrim.toFixed(2) + '%' : '—'}</td>
+                            <td>${d.varAnnuelle !== null ? (d.varAnnuelle >= 0 ? '+' : '') + d.varAnnuelle.toFixed(2) + '%' : '—'}</td>
+                        </tr>
+                    `;
             }).join('');
         }
 
         // ------------------------------------------------------------
-        // 9. EXPORT CSV
+        // 10. EXPORT CSV AVEC TOUTES LES COLONNES
         // ------------------------------------------------------------
         function downloadCSV() {
-            const header = 'Trimestre,Président,Dette (Md€),Dette (MdF),Dette/PIB (%),Intérêts (Md€),Intérêts (MdF),Taux (%)\n';
-            const rows = debtData.map(d => {
+            const header = 'Trimestre,Président,Dette (Md€),Dette (MdF),Dette/PIB (%),Intérêts (Md€),Intérêts (MdF),Taux (%),Dette/hab. (€),Taux effectif (%),Var. trimestrielle (%),Var. annuelle (%)\n';
+            const rows = debtData.map((d, index, arr) => {
                 const q = formatQuarter(d.date);
                 const pres = getPresidentForDate(d.date);
                 const detteFrf = d.value * CONVERSION;
                 const interetsFrf = d.interets * CONVERSION;
-                return `${q},${pres},${d.value.toFixed(1)},${detteFrf.toFixed(1)},${d.pib.toFixed(1)},${d.interets.toFixed(1)},${interetsFrf.toFixed(1)},${d.taux.toFixed(2)}`;
+                const detteParHabitant = (d.value * 1000) / POPULATION;
+                const tauxEffectif = (d.interets / d.value) * 100;
+                // Variation trimestrielle
+                const prev = index > 0 ? arr[index - 1] : null;
+                const varTrim = prev ? ((d.value - prev.value) / prev.value * 100) : null;
+                // Glissement annuel
+                const currentDate = new Date(d.date);
+                const prevYearDate = new Date(currentDate);
+                prevYearDate.setFullYear(currentDate.getFullYear() - 1);
+                const prevYearStr = prevYearDate.toISOString().slice(0, 10);
+                const prevYearData = arr.find(item => item.date === prevYearStr);
+                const varAnnuelle = prevYearData ? ((d.value - prevYearData.value) / prevYearData.value * 100) : null;
+                return `${q},${pres},${d.value.toFixed(1)},${detteFrf.toFixed(1)},${d.pib.toFixed(1)},${d.interets.toFixed(1)},${interetsFrf.toFixed(1)},${d.taux.toFixed(2)},${detteParHabitant.toFixed(0)},${tauxEffectif.toFixed(2)},${varTrim !== null ? varTrim.toFixed(2) : ''},${varAnnuelle !== null ? varAnnuelle.toFixed(2) : ''}`;
             });
             const csv = header + rows.join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'finances_publiques_trimestres.csv');
+            link.setAttribute('download', 'finances_publiques_trimestres_avec_indicateurs.csv');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1054,7 +1138,7 @@
         document.getElementById('csvBtn').addEventListener('click', downloadCSV);
 
         // ------------------------------------------------------------
-        // 10. RECHERCHE / TRI
+        // 11. RECHERCHE / TRI
         // ------------------------------------------------------------
         const searchInput = document.getElementById('searchInput');
         const sortSelect = document.getElementById('sortSelect');
@@ -1067,13 +1151,13 @@
         sortSelect.addEventListener('change', updateTable);
 
         // ------------------------------------------------------------
-        // 11. INIT
+        // 12. INIT
         // ------------------------------------------------------------
         renderStats();
         renderPresidents();
         renderTable(debtData, 'date-asc', '');
 
-        console.log('🇫🇷 Dashboard avec ratio comparatif annuel (€ & FRF)');
+        console.log('🇫🇷 Dashboard complet avec indicateurs trimestriels approfondis');
         console.log(`📊 ${debtData.length} trimestres · ${presidents.length} présidents`);
         const last = debtData[debtData.length - 1];
         console.log(`💰 Dette/PIB : ${last.pib.toFixed(1)}% · Intérêts T1 2026 : ${last.interets.toFixed(1)} Md€ (soit ${(last.interets * CONVERSION).toFixed(1)} MdF)`);
